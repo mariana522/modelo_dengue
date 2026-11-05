@@ -12,24 +12,6 @@ import logging
 import joblib
 import numpy as np
 
-# --- OPTIMIZACIÓN DE MEMORIA PARA RENDER ---
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # Fuerza el uso de CPU para ahorrar memoria RAM
-
-import tensorflow as tf
-from flask import Flask, request, jsonify, render_template
-
-# Configuración básica de logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
-logger = logging.getLogger("AppDengueDashboard")
-
-# Configuración de rutas y Flask
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODELS_DIR = os.path.join(BASE_DIR, "models")
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
-STATIC_DIR = os.path.join(BASE_DIR, "static")
-
-app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
 
 # Suprimir advertencias y telemetría de TensorFlow
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
