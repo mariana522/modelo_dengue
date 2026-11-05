@@ -1,0 +1,47 @@
+{
+    "regresion_logistica": {
+        "modelo": "Regresi\u00f3n Log\u00edstica (Scikit-Learn)",
+        "accuracy": 0.819672131147541,
+        "precision": 0.5454545454545454,
+        "recall": 0.9230769230769231,
+        "f1_score": 0.6857142857142857,
+        "roc_auc": 0.9711538461538463,
+        "confusion_matrix": [
+            [
+                38,
+                10
+            ],
+            [
+                1,
+                12
+            ]
+        ],
+        "cv_5fold": {
+            "accuracy_mean": 0.764795918367347,
+            "recall_mean": 0.64,
+            "roc_auc_mean": 0.7773954116059378
+        }
+    },
+    "red_neuronal_ann": {
+        "modelo": "Red Neuronal Artificial - ANN (TensorFlow/Keras)",
+        "accuracy": 0.819672131147541,
+        "precision": 0.5416666666666666,
+        "recall": 1.0,
+        "f1_score": 0.7027027027027027,
+        "roc_auc": 0.9519230769230769,
+        "confusion_matrix": [
+            [
+                37,
+                11
+            ],
+            [
+                0,
+                13
+            ]
+        ]
+    },
+    "n_muestras_total": 303,
+    "n_train": 242,
+    "n_test": 61,
+    "n_features": 21
+}

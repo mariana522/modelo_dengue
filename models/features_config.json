@@ -1,0 +1,37 @@
+{
+    "features": [
+        "EDAD_MAYOR_6",
+        "GENERO_FEMENINO",
+        "DURATION OF FEVER",
+        "VOMITING",
+        "ABDOMINAL PAIN",
+        "BLEEDING",
+        "HIPOTENSION",
+        "ORGANOMEGALY",
+        "HB",
+        "PCV",
+        "HIGHEST WBC",
+        "PLATELET COUNT",
+        "ALT",
+        "PCV_GE_42",
+        "PLAQUETAS_LE_75K",
+        "WBC_GE_7K",
+        "ALT_GE_70",
+        "FIEBRE_GE_6D",
+        "SCORE_CLINICO",
+        "INDICE_HEMO_PLAQUETA",
+        "HB_PCV_RATIO"
+    ],
+    "metricas": {
+        "regresion_logistica": {
+            "accuracy": 0.819672131147541,
+            "recall": 0.9230769230769231,
+            "roc_auc": 0.9711538461538463
+        },
+        "red_neuronal_ann": {
+            "accuracy": 0.819672131147541,
+            "recall": 0.9230769230769231,
+            "roc_auc": 0.907051282051282
+        }
+    }
+}

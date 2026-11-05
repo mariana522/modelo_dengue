@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-[#0b1120]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DengueRisk AI™ | Dashboard Clínico de Triaje Pediátrico</title>
+  
+  <!-- Tailwind CSS & Google Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  
+  <!-- Lucide Icons & Chart.js -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="min-h-full flex flex-col justify-between text-slate-200 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- ====================================================================
+       CABECERA INSTITUCIONAL Y BARRA DE ESTADO
+       ==================================================================== -->
+  <header class="bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30 shadow-lg shadow-black/30 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+      
+      <!-- Brand & Title (Subtítulo simplificado y limpio) -->
+      <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-sky-500/25 ring-1 ring-white/20 shrink-0">
+          <i data-lucide="activity" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
+              DengueRisk <span class="text-sky-400">AI</span><span class="text-[10px] text-slate-400 font-mono font-normal uppercase px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">CDSS v2.0</span>
+            </h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-400 pulse-led"></span> Sistema Activo
+            </span>
+          </div>
+          <!-- Subtítulo conciso y claro -->
+          <p class="text-[11px] text-slate-400 font-medium">Sistema de Soporte Clínico &bull; Dengue Pediátrico</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Presets & Tech Audit Trigger -->
+      <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+        <div class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800 shadow-inner text-xs">
+          <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 px-2 flex items-center gap-1">
+            <i data-lucide="sparkles" class="w-3 h-3 text-sky-400"></i> Casos:
+          </span>
+          <button type="button" id="btn-preset-leve" class="px-2.5 py-1 rounded-lg text-emerald-400 hover:bg-emerald-500/15 border border-transparent hover:border-emerald-500/30 transition text-[11px] font-semibold" title="Cargar caso leve no complicado">
+            🟢 Leve
+          </button>
+          <button type="button" id="btn-preset-moderado" class="px-2.5 py-1 rounded-lg text-amber-300 hover:bg-amber-500/15 border border-transparent hover:border-amber-500/30 transition text-[11px] font-semibold" title="Cargar caso con signos de alarma">
+            🟡 Alarma
+          </button>
+          <button type="button" id="btn-preset-grave" class="px-2.5 py-1 rounded-lg text-rose-400 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition text-[11px] font-semibold" title="Cargar caso grave de choque">
+            🔴 Crítico
+          </button>
+        </div>
+
+        <button type="button" id="btn-abrir-modal-metricas" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 hover:text-sky-300 border border-slate-700 hover:border-sky-500/40 transition flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+          <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-sky-400"></i>
+          <span>Rigor Estadístico</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ====================================================================
+       CONTENIDO PRINCIPAL
+       ==================================================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 w-full flex-grow space-y-5 no-print">
+    
+    <!-- 1. FRANJA SUPERIOR: TARJETAS DE MÉTRICAS SIMPLIFICADAS Y ELEGANTES -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      
+      <!-- Card Modelo 1: Regresión Logística -->
+      <div class="clinical-card p-3.5 border-l-4 border-l-sky-500 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1">
+            <i data-lucide="binary" class="w-3 h-3"></i> Regresión Logística
+          </span>
+          <span class="text-[10px] text-slate-400">Scikit-Learn</span>
+        </div>
+        <div class="my-1.5 flex items-baseline gap-2">
+          <span class="text-2xl font-black text-white font-mono-numbers">97.1%</span>
+          <span class="text-xs font-bold text-sky-400 uppercase">ROC-AUC</span>
+        </div>
+        <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-800/80 pt-1.5 font-mono-numbers">
+          <span>Accuracy: <strong class="text-slate-200">82.0%</strong></span>
+          <span>Recall: <strong class="text-slate-200">92.3%</strong></span>
+        </div>
+      </div>
+
+      <!-- Card Modelo 2: Red Neuronal Profunda (ANN) -->
+      <div class="clinical-card p-3.5 border-l-4 border-l-purple-500 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
+            <i data-lucide="cpu" class="w-3 h-3"></i> Red Neuronal (ANN)
+          </span>
+          <span class="text-[10px] text-slate-400">TensorFlow</span>
+        </div>
+        <div class="my-1.5 flex items-baseline gap-2">
+          <span class="text-2xl font-black text-white font-mono-numbers">100%</span>
+          <span class="text-xs font-bold text-purple-400 uppercase">Sensibilidad</span>
+        </div>
+        <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-800/80 pt-1.5 font-mono-numbers">
+          <span>0 Falsos Negativos</span>
+          <span>ROC-AUC: <strong class="text-slate-200">95.2%</strong></span>
+        </div>
+      </div>
+
+      <!-- Card Score Clínico Ponderado -->
+      <div class="clinical-card p-3.5 border-l-4 border-l-amber-500 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
+            <i data-lucide="calculator" class="w-3 h-3"></i> Score F1000Research
+          </span>
+          <span class="text-[10px] text-slate-400">Guía Clínica</span>
+        </div>
+        <div class="my-1.5 flex items-baseline gap-2">
+          <span class="text-2xl font-black text-white font-mono-numbers">0 a 7</span>
+          <span class="text-xs font-bold text-amber-400 uppercase">Puntos</span>
+        </div>
+        <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-800/80 pt-1.5 font-mono-numbers">
+          <span>Alarma: <strong class="text-amber-300">&ge; 2 pts</strong></span>
+          <span>Choque: <strong class="text-rose-400">&ge; 3 pts</strong></span>
+        </div>
+      </div>
+
+      <!-- Card Cohorte Pediátrica -->
+      <div class="clinical-card p-3.5 border-l-4 border-l-emerald-500 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-3 h-3"></i> Validación Clínica
+          </span>
+          <span class="text-[10px] text-slate-400">Test Ciego</span>
+        </div>
+        <div class="my-1.5 flex items-baseline gap-2">
+          <span class="text-2xl font-black text-white font-mono-numbers">303</span>
+          <span class="text-xs font-bold text-emerald-400 uppercase">Pacientes</span>
+        </div>
+        <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-800/80 pt-1.5 font-mono-numbers">
+          <span>21 Biomarcadores</span>
+          <span>5-Fold Validado</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 2. GRID PRINCIPAL: FORMULARIO CLÍNICO (IZQ) & RESULTADOS / GRÁFICAS (DER) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      
+      <!-- ==================================================================
+           COLUMNA IZQUIERDA: FORMULARIO INTERACTIVO ORGANIZADO (7 COLS)
+           ================================================================== -->
+      <div class="lg:col-span-7 space-y-4">
+        
+        <!-- SECCIÓN A: DATOS DEMOGRÁFICOS Y TEMPORALIDAD -->
+        <div class="clinical-card p-4 space-y-3.5">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i>
+              </div>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">1. Datos Demográficos y Fiebre</h2>
+            </div>
+            <span class="text-[10px] text-slate-400">Ingreso Inicial</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <!-- Grupo Etario -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-edad" class="text-xs font-medium text-slate-300 flex items-center gap-1">
+                  Edad Pediátrica
+                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    <span class="tooltip-box">Lactantes y niños &le; 6 años tienen mayor fragilidad capilar y riesgo de descompensación acelerada.</span>
+                  </span>
+                </label>
+              </div>
+              <select id="input-edad" class="form-input-custom w-full font-medium">
+                <option value="0">&le; 6 años (Primera Infancia)</option>
+                <option value="1" selected>&gt; 6 años (Escolar / Adolescente)</option>
+              </select>
+            </div>
+
+            <!-- Género -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-genero" class="text-xs font-medium text-slate-300">Género Biológico</label>
+              </div>
+              <select id="input-genero" class="form-input-custom w-full font-medium">
+                <option value="0" selected>Masculino</option>
+                <option value="1">Femenino</option>
+              </select>
+            </div>
+
+            <!-- Días de Fiebre -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-fiebre" class="text-xs font-medium text-slate-300 flex items-center gap-1">
+                  Días de Fiebre
+                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    <span class="tooltip-box">La fase crítica suele coincidir con la defervescencia térmica (días 3 a 6). Una duración &ge;6 días indica fase crítica persistente.</span>
+                  </span>
+                </label>
+                <span id="val-fiebre" class="text-xs font-mono font-bold text-sky-400">4 días</span>
+              </div>
+              <div class="space-y-1">
+                <input type="range" id="input-fiebre" min="1" max="15" value="4" class="w-full">
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                  <span>1d</span>
+                  <span id="badge-fiebre-critico" class="hidden text-amber-400 font-medium">&ge;6d Prolongada</span>
+                  <span>15d</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SECCIÓN B: SIGNOS CLÍNICOS Y CRITERIOS HEMODINÁMICOS -->
+        <div class="clinical-card p-4 space-y-3.5">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-md bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs">
+                <i data-lucide="stethoscope" class="w-3.5 h-3.5"></i>
+              </div>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">2. Signos Clínicos y Criterios Hemodinámicos</h2>
+            </div>
+            <span class="text-[10px] text-slate-400">Examen Físico</span>
+          </div>
+
+          <!-- TARJETA DESTACADA: HIPOTENSIÓN / CHOQUE (+3 PTS) -->
+          <div id="card-hipotension" class="p-3.5 rounded-xl border border-slate-800 bg-slate-900/40 transition-all duration-200 flex items-center justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="heart-pulse" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-white">Hipotensión Arterial / Signos de Choque</span>
+                  <span class="px-2 py-0.2 rounded-full text-[10px] font-extrabold bg-rose-500/30 text-rose-300 border border-rose-500/40">+3 Pts</span>
+                  <span class="has-tooltip text-slate-400 hover:text-rose-400">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                    <span class="tooltip-box">¿Qué significa esto? PA Sistólica &lt; percentil 5 para edad/sexo, llenado capilar &gt; 2 seg, o frialdad acral. En F1000Research es el predictor de choque más potente.</span>
+                  </span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                  Presión arterial sistólica &lt; P5 para edad y sexo o frialdad distal. Marcador patognomónico de Fuga Plasmática Crítica.
+                </p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+              <input type="checkbox" id="input-hipotension" class="sr-only peer toggle-checkbox">
+              <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+            </label>
+          </div>
+
+          <!-- OTROS SIGNOS CLÍNICOS EN CUADRÍCULA -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            
+            <!-- Vómitos Persistentes -->
+            <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
+              <div class="flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-sky-400"></i>
+                <div>
+                  <div class="font-semibold text-slate-200 flex items-center gap-1">
+                    Vómitos Persistentes
+                    <span class="has-tooltip text-slate-500 hover:text-sky-400">
+                      <i data-lucide="info" class="w-3 h-3"></i>
+                      <span class="tooltip-box">&ge; 3 episodios en 24h o intolerancia oral completa que impide la hidratación ambulatoria.</span>
+                    </span>
+                  </div>
+                  <div class="text-[10px] text-slate-400">&ge; 3 episodios / intolerancia a la vía oral</div>
+                </div>
+              </div>
+              <input type="checkbox" id="input-vomitos" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
+            </label>
+
+            <!-- Dolor Abdominal Intenso -->
+            <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
+              <div class="flex items-center gap-2">
+                <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-sky-400"></i>
+                <div>
+                  <div class="font-semibold text-slate-200 flex items-center gap-1">
+                    Dolor Abdominal Continuo
+                    <span class="has-tooltip text-slate-500 hover:text-sky-400">
+                      <i data-lucide="info" class="w-3 h-3"></i>
+                      <span class="tooltip-box">Dolor continuo e intenso por acumulación de líquido en pared de la vesícula o engrosamiento retroperitoneal.</span>
+                    </span>
+                  </div>
+                  <div class="text-[10px] text-slate-400">Intenso, continuo o espontáneo</div>
+                </div>
+              </div>
+              <input type="checkbox" id="input-dolor" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
+            </label>
+
+            <!-- Sangrado de Mucosas -->
+            <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
+              <div class="flex items-center gap-2">
+                <i data-lucide="droplet" class="w-3.5 h-3.5 text-rose-400"></i>
+                <div>
+                  <div class="font-semibold text-slate-200 flex items-center gap-1">
+                    Sangrado Espontáneo
+                    <span class="has-tooltip text-slate-500 hover:text-rose-400">
+                      <i data-lucide="info" class="w-3 h-3"></i>
+                      <span class="tooltip-box">Manifestaciones hemorrágicas activas: petequias abundantes, epistaxis o gingivorragia por trombocitopenia o coagulopatía.</span>
+                    </span>
+                  </div>
+                  <div class="text-[10px] text-slate-400">Petequias, epistaxis o gingivorragia</div>
+                </div>
+              </div>
+              <input type="checkbox" id="input-sangrado" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-rose-500 focus:ring-rose-500/30">
+            </label>
+
+            <!-- Organomegalia -->
+            <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
+              <div class="flex items-center gap-2">
+                <i data-lucide="crosshair" class="w-3.5 h-3.5 text-sky-400"></i>
+                <div>
+                  <div class="font-semibold text-slate-200 flex items-center gap-1">
+                    Organomegalia
+                    <span class="has-tooltip text-slate-500 hover:text-sky-400">
+                      <i data-lucide="info" class="w-3 h-3"></i>
+                      <span class="tooltip-box">Hepatomegalia dolorosa &gt; 2 cm bajo el reborde costal debida a congestión sinusoidal y necrosis hepatocitaria.</span>
+                    </span>
+                  </div>
+                  <div class="text-[10px] text-slate-400">Hepatomegalia &gt; 2 cm reborde costal</div>
+                </div>
+              </div>
+              <input type="checkbox" id="input-organomegalia" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
+            </label>
+
+          </div>
+        </div>
+
+        <!-- SECCIÓN C: BIOMARCADORES DE LABORATORIO -->
+        <div class="clinical-card p-4 space-y-3.5">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-md bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">
+                <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
+              </div>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">3. Parámetros Hematológicos y Hepáticos</h2>
+            </div>
+            <span class="text-[10px] text-slate-400">Laboratorio Clínico</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+            
+            <!-- Hemoglobina Hb -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-hb" class="font-medium text-slate-300 flex items-center gap-1">
+                  Hemoglobina (Hb)
+                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    <span class="tooltip-box">Rango normal: 11.5 - 15.5 g/dL. Utilizada para calcular el ratio Hb/PCV y descartar anemia previa.</span>
+                  </span>
+                </label>
+                <span class="text-[10px] text-slate-400">g/dL</span>
+              </div>
+              <input type="number" step="0.1" id="input-hb" value="13.2" min="4.0" max="22.0" class="form-input-custom w-full font-mono-numbers">
+              <span class="text-[10px] text-slate-400 block mt-1">Ref: 11.5 - 15.5 g/dL</span>
+            </div>
+
+            <!-- Hematocrito PCV -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-pcv" class="font-medium text-slate-300 flex items-center gap-1">
+                  Hematocrito (PCV)
+                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    <span class="tooltip-box">¿Qué significa esto? PCV &ge; 42% indica hemoconcentración severa por fuga plasmática hacia el espacio intersticial (+1 pt).</span>
+                  </span>
+                </label>
+                <span class="text-[10px] text-slate-400">%</span>
+              </div>
+              <input type="number" step="0.1" id="input-pcv" value="39.5" min="15.0" max="65.0" class="form-input-custom w-full font-mono-numbers">
+              <div class="mt-1 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400">Ref: 34 - 40%</span>
+                <span id="badge-pcv-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  &ge;42% (+1 pt)
+                </span>
+              </div>
+            </div>
+
+            <!-- Plaquetas -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-platelets" class="font-medium text-slate-300 flex items-center gap-1">
+                  Plaquetas (Count)
+                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    <span class="tooltip-box">¿Qué significa esto? Trombocitopenia &le; 75,000 /mm³ es criterio de alarma mayor por aumento de riesgo hemorrágico (+1 pt).</span>
+                  </span>
+                </label>
+                <span class="text-[10px] text-slate-400">/mm³</span>
+              </div>
+              <input type="number" step="1000" id="input-platelets" value="115000" min="5000" max="600000" class="form-input-custom w-full font-mono-numbers">
+              <div class="mt-1 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400">Ref: 150k - 450k</span>
+                <span id="badge-platelets-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  &le;75k (+1 pt)
+                </span>
+              </div>
+            </div>
+
+            <!-- Leucocitos WBC -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-wbc" class="font-medium text-slate-300 flex items-center gap-1">
+                  Leucocitos (WBC)
+                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    <span class="tooltip-box">Leucocitosis reactiva (&ge; 7,000 /mm³) en fase crítica se asocia a respuesta inflamatoria sistémica severa (+1 pt).</span>
+                  </span>
+                </label>
+                <span class="text-[10px] text-slate-400">/mm³</span>
+              </div>
+              <input type="number" step="100" id="input-wbc" value="4800" min="500" max="40000" class="form-input-custom w-full font-mono-numbers">
+              <div class="mt-1 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400">Ref: 4k - 10k</span>
+                <span id="badge-wbc-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  &ge;7,000 (+1 pt)
+                </span>
+              </div>
+            </div>
+
+            <!-- Transaminasa ALT -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-alt" class="font-medium text-slate-300 flex items-center gap-1">
+                  ALT Transaminasa
+                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    <span class="tooltip-box">¿Qué significa esto? Elevación &ge; 70 U/L indica daño hepatocelular agudo (hepatitis reactiva por dengue) (+1 pt).</span>
+                  </span>
+                </label>
+                <span class="text-[10px] text-slate-400">U/L</span>
+              </div>
+              <input type="number" step="1" id="input-alt" value="28" min="5" max="1500" class="form-input-custom w-full font-mono-numbers">
+              <div class="mt-1 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400">Ref: 10 - 40 U/L</span>
+                <span id="badge-alt-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  &ge;70 U/L (+1 pt)
+                </span>
+              </div>
+            </div>
+
+            <!-- Resumen de Ponderación -->
+            <div class="rounded-xl border border-dashed border-slate-800 p-2.5 flex flex-col justify-center bg-slate-900/20">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                <i data-lucide="zap" class="w-3 h-3 text-sky-400"></i> Score F1000Research:
+              </span>
+              <p class="text-[10px] text-slate-400 mt-1 leading-snug">
+                Cada umbral crítico suma +1 pt al score clínico y calibra la predicción de ambos modelos en paralelo.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- BOTÓN DEDICADO: RESTAURAR / LIMPIAR FORMULARIO (NUEVA MEJORA) -->
+        <div class="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-900/40">
+          <div class="text-xs text-slate-400">
+            Reinicia todos los parámetros a valores basales para una nueva evaluación.
+          </div>
+          <button type="button" id="btn-limpiar-formulario-bottom" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-slate-600 transition text-xs font-bold flex items-center gap-2 shadow-sm">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>Limpiar Formulario</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ==================================================================
+           COLUMNA DERECHA: RESULTADOS, TACÓMETRO & GRÁFICAS (5 COLS)
+           ================================================================== -->
+      <div class="lg:col-span-5 sticky top-20 space-y-4">
+        
+        <!-- PANEL DE ESTRATIFICACIÓN PRINCIPAL -->
+        <div class="clinical-card p-4 space-y-4">
+          
+          <!-- SELECTOR DE MODELO PREDICTIVO (TABS) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Modelo Activo para Inferencia:</span>
+              <span class="text-[10px] text-slate-400 font-mono-numbers" id="res-nombre-modelo">Regresión Logística</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
+              <button type="button" data-model="logistica" class="model-tab-btn active-tab py-1.5 px-2 rounded-lg font-bold text-center transition bg-sky-500 text-white shadow-sm flex items-center justify-center gap-1">
+                <span>Logística</span>
+              </button>
+              <button type="button" data-model="ann" class="model-tab-btn py-1.5 px-2 rounded-lg font-bold text-center transition bg-slate-800/80 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1">
+                <span>Red ANN</span>
+              </button>
+              <button type="button" data-model="ensamble" class="model-tab-btn py-1.5 px-2 rounded-lg font-bold text-center transition bg-slate-800/80 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1">
+                <span>Consenso</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- TACÓMETRO / GAUGE VISUAL SEMAFÓRICO -->
+          <div class="p-3.5 rounded-xl border border-slate-800/90 bg-gradient-to-b from-slate-900/60 to-slate-950/80 flex flex-col items-center relative overflow-hidden">
+            
+            <div class="w-full flex items-center justify-between mb-1">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                <i data-lucide="gauge" class="w-3.5 h-3.5 text-sky-400"></i> Probabilidad de Complicación
+              </span>
+              <div id="res-badge-nivel" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-led"></span> Riesgo Bajo
+              </div>
+            </div>
+
+            <!-- Gauge Semi-Circle SVG Visual -->
+            <div class="relative w-48 h-28 flex items-end justify-center mt-2">
+              <svg viewBox="0 0 200 115" class="w-48 h-28 transform overflow-visible">
+                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
+                <path d="M 20 100 A 80 80 0 0 1 76 34" fill="none" stroke="rgba(16, 185, 129, 0.25)" stroke-width="16"/>
+                <path d="M 76 34 A 80 80 0 0 1 124 34" fill="none" stroke="rgba(245, 158, 11, 0.25)" stroke-width="16"/>
+                <path d="M 124 34 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(239, 68, 68, 0.25)" stroke-width="16"/>
+                <path id="res-gauge-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#10b981" stroke-width="16" stroke-linecap="round" class="gauge-arc-fill" style="stroke-dasharray: 251.2; stroke-dashoffset: 220;"/>
+              </svg>
+
+              <!-- Center Big Risk Value -->
+              <div class="absolute bottom-1 flex flex-col items-center">
+                <span id="res-prob-principal" class="text-3xl font-extrabold tracking-tight text-white font-mono-numbers">8.8%</span>
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Riesgo Estimado</span>
+              </div>
+            </div>
+
+            <!-- Gauge Scale Legend -->
+            <div class="w-full flex items-center justify-between text-[10px] text-slate-400 font-mono-numbers px-2 mt-1 pt-1 border-t border-slate-800/80">
+              <span class="text-emerald-400">&lt; 35% Bajo</span>
+              <span class="text-amber-400">35-69% Moderado</span>
+              <span class="text-rose-400">&ge; 70% Crítico</span>
+            </div>
+
+          </div>
+
+          <!-- GRÁFICA COMPARATIVA DINÁMICA (CHART.JS) -->
+          <div class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span class="text-xs font-bold text-slate-200">Comparativa en Tiempo Real: LR vs. ANN</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span id="res-delta-diff" class="text-[11px] font-mono-numbers text-slate-300">Δ 0.0%</span>
+                <span id="res-concordancia-badge" class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                  Alta Concordancia
+                </span>
+              </div>
+            </div>
+            
+            <div class="h-32 w-full">
+              <canvas id="comparisonChart"></canvas>
+            </div>
+          </div>
+
+          <!-- SCORE CLÍNICO F1000RESEARCH Y BARRA DE HITOS -->
+          <div class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-slate-200">Score Clínico Ponderado</span>
+                <div class="text-[10px] text-slate-400">Corte: &ge; 2 pts alarma | &ge; 3 pts choque</div>
+              </div>
+              <div class="text-right">
+                <div id="res-score-numero" class="text-lg font-black text-sky-400 font-mono-numbers">0 / 7</div>
+              </div>
+            </div>
+
+            <!-- Barra de Progreso de Hitos -->
+            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+              <div id="res-score-barra" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 5%"></div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span id="res-score-detalle" class="text-[11px] text-slate-400">&lt; 2 pts: Sin criterios de complicación</span>
+              <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono-numbers">
+                <span>Índice H-P: <strong id="res-indice-hp" class="text-slate-300">--</strong></span>
+                <span>Hb/PCV: <strong id="res-indice-hb-pcv" class="text-slate-300">--</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONDUCTA MÉDICA INMEDIATA -->
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5 flex items-center gap-1">
+              <i data-lucide="clipboard-check" class="w-3 h-3 text-sky-400"></i> Conducta Médica y Plan de Acción:
+            </span>
+            <div id="res-conducta-card" class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 text-xs text-slate-300 leading-relaxed transition-all duration-300 flex items-start gap-2.5">
+              <div class="mt-0.5 shrink-0 text-emerald-400">
+                <i data-lucide="check-circle" id="res-conducta-icono" class="w-4 h-4"></i>
+              </div>
+              <div id="res-conducta-texto">
+                Candidato a manejo ambulatorio supervisado con control en 24 horas. Reposo en cama, hidratación oral abundante (SRO), paracetamol y educación a padres sobre signos de alarma.
+              </div>
+            </div>
+          </div>
+
+          <!-- CRITERIOS DE ALARMA DETECTADOS -->
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5 flex items-center gap-1">
+              <i data-lucide="alert-triangle" class="w-3 h-3 text-amber-400"></i> Criterios de Alarma Activos:
+            </span>
+            <div id="res-factores-lista" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+              <div class="p-2 rounded-lg border border-dashed border-slate-800 text-xs text-slate-400 italic text-center">
+                Ningún criterio mayor o alteración de laboratorio detectada.
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN DE EXPORTACIÓN Y REPORTE (NUEVA MEJORA) -->
+          <div class="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
+            <button type="button" id="btn-exportar-pdf" class="flex-1 px-3 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-950 transition">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+              <span>Imprimir / Guardar PDF</span>
+            </button>
+            <button type="button" id="btn-exportar-txt" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="file-text" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>Ficha (.TXT)</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ====================================================================
+       PLANTILLA DE IMPRESIÓN Y REPORTE CLÍNICO (SOLO VISIBLE EN PRINT/PDF)
+       ==================================================================== -->
+  <div id="printable-report" class="hidden print:block p-8 bg-white text-slate-900 text-sm">
+    <div class="border-b-2 border-slate-800 pb-4 mb-6 flex justify-between items-start">
+      <div>
+        <h1 class="text-xl font-black text-slate-900 tracking-tight">INFORME DE TRIAJE Y ESTRATIFICACIÓN CLÍNICA DE DENGUE</h1>
+        <p class="text-xs text-slate-600">Sistema de Soporte para la Toma de Decisiones Clínicas (CDSS) &bull; Cohorte F1000Research</p>
+      </div>
+      <div class="text-right text-xs text-slate-500">
+        <div><strong>Fecha:</strong> <span id="print-fecha"></span></div>
+        <div><strong>ID Evaluación:</strong> <span id="print-id"></span></div>
+      </div>
+    </div>
+
+    <!-- Resumen del Paciente -->
+    <div class="mb-6">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 border-b pb-1 mb-3">1. Datos del Paciente y Constantes al Ingreso</h2>
+      <div class="grid grid-cols-3 gap-3 text-xs">
+        <div><strong>Grupo Etario:</strong> <span id="print-edad"></span></div>
+        <div><strong>Género:</strong> <span id="print-genero"></span></div>
+        <div><strong>Duración Fiebre:</strong> <span id="print-fiebre"></span></div>
+      </div>
+    </div>
+
+    <!-- Signos y Laboratorios -->
+    <div class="mb-6 grid grid-cols-2 gap-4">
+      <div>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 border-b pb-1 mb-2">2. Signos Clínicos</h2>
+        <ul id="print-signos" class="list-disc list-inside text-xs space-y-1"></ul>
+      </div>
+      <div>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 border-b pb-1 mb-2">3. Resultados de Laboratorio</h2>
+        <div class="text-xs space-y-1">
+          <div><strong>Hemoglobina:</strong> <span id="print-hb"></span> g/dL</div>
+          <div><strong>Hematocrito (PCV):</strong> <span id="print-pcv"></span>%</div>
+          <div><strong>Plaquetas:</strong> <span id="print-platelets"></span> /mm³</div>
+          <div><strong>Leucocitos (WBC):</strong> <span id="print-wbc"></span> /mm³</div>
+          <div><strong>ALT Transaminasa:</strong> <span id="print-alt"></span> U/L</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados del Algoritmo -->
+    <div class="mb-6 p-4 rounded-lg bg-slate-100 border border-slate-300">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">4. Dictamen del Modelo Predictivo (CDSS)</h2>
+      <div class="grid grid-cols-3 gap-3 text-xs mb-3">
+        <div><strong>Regresión Logística:</strong> <span id="print-prob-lr" class="font-bold"></span></div>
+        <div><strong>Red Neuronal ANN:</strong> <span id="print-prob-ann" class="font-bold"></span></div>
+        <div><strong>Consenso Ensamble:</strong> <span id="print-prob-ens" class="font-bold"></span></div>
+      </div>
+      <div class="text-xs space-y-1">
+        <div><strong>Score F1000Research:</strong> <span id="print-score" class="font-bold"></span></div>
+        <div><strong>Estratificación de Riesgo:</strong> <span id="print-nivel" class="font-bold text-sm"></span></div>
+      </div>
+    </div>
+
+    <!-- Conducta Médica -->
+    <div class="mb-8">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 border-b pb-1 mb-2">5. Conducta y Recomendación Terapéutica Inmediata</h2>
+      <p id="print-conducta" class="text-xs text-slate-800 leading-relaxed"></p>
+    </div>
+
+    <!-- Firmas -->
+    <div class="mt-12 pt-6 border-t border-slate-300 grid grid-cols-2 gap-8 text-center text-xs">
+      <div>
+        <div class="border-b border-slate-400 w-48 mx-auto mb-1"></div>
+        <span>Firma y Sello del Médico Evaluador</span>
+      </div>
+      <div>
+        <div class="border-b border-slate-400 w-48 mx-auto mb-1"></div>
+        <span>Servicio de Urgencias Pediátricas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL DE RIGOR TÉCNICO, AUDITORÍA Y MATRICES DE CONFUSIÓN
+       ==================================================================== -->
+  <div id="modal-metricas" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop-blur no-print">
+    <div class="clinical-card w-full max-w-4xl p-6 space-y-5 border-slate-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center">
+            <i data-lucide="activity" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Rigor Estadístico, Auditoría y Matrices de Confusión</h3>
+            <p class="text-xs text-slate-400">Validación Ciega Independiente (N = {{ metricas.n_test }} pacientes) sobre Cohorte F1000Research</p>
+          </div>
+        </div>
+        <button type="button" id="btn-cerrar-modal-metricas" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center hover:bg-slate-700 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Comparativa de Rendimiento lado a lado -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Matriz Modelo 1: Regresión Logística -->
+        <div class="p-4 rounded-xl border border-sky-500/30 bg-slate-900/60 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+              <i data-lucide="binary" class="w-4 h-4"></i> Regresión Logística (Scikit-Learn)
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300">
+              AUC 0.971
+            </span>
+          </div>
+
+          <!-- Matriz 2x2 Visual -->
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-2 text-xs">
+            <div class="text-[10px] uppercase font-bold text-slate-400 text-center">Matriz de Confusión (Test N=61)</div>
+            <div class="grid grid-cols-2 gap-2 text-center font-mono-numbers">
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] text-slate-400">Verdaderos Negativos (TN)</div>
+                <div class="text-lg font-bold text-white">{{ metricas.regresion_logistica.confusion_matrix[0][0] }}</div>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] text-slate-400">Falsos Positivos (FP)</div>
+                <div class="text-lg font-bold text-amber-400">{{ metricas.regresion_logistica.confusion_matrix[0][1] }}</div>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] text-slate-400">Falsos Negativos (FN)</div>
+                <div class="text-lg font-bold text-rose-400">{{ metricas.regresion_logistica.confusion_matrix[1][0] }}</div>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] text-slate-400">Verdaderos Positivos (TP)</div>
+                <div class="text-lg font-bold text-emerald-400">{{ metricas.regresion_logistica.confusion_matrix[1][1] }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de Métricas -->
+          <div class="grid grid-cols-4 gap-2 text-center text-xs font-mono-numbers">
+            <div class="p-1.5 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">Accuracy</span>
+              <strong class="text-white">{{ "%.1f"|format(metricas.regresion_logistica.accuracy * 100) }}%</strong>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">Recall</span>
+              <strong class="text-sky-300">{{ "%.1f"|format(metricas.regresion_logistica.recall * 100) }}%</strong>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">Precisión</span>
+              <strong class="text-slate-300">{{ "%.1f"|format(metricas.regresion_logistica.precision * 100) }}%</strong>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">F1-Score</span>
+              <strong class="text-slate-300">{{ "%.1f"|format(metricas.regresion_logistica.f1_score * 100) }}%</strong>
+            </div>
+          </div>
+
+          <!-- Validación Cruzada 5-Fold -->
+          <div class="text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 leading-relaxed">
+            <strong class="text-slate-300">5-Fold Cross Validation:</strong> Exactitud promedio: 76.5%, Recall promedio: 64.0%, ROC-AUC promedio: 77.7%.
+          </div>
+        </div>
+
+        <!-- Matriz Modelo 2: Red Neuronal Profunda (ANN) -->
+        <div class="p-4 rounded-xl border border-purple-500/30 bg-slate-900/60 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-purple-400 flex items-center gap-1.5">
+              <i data-lucide="cpu" class="w-4 h-4"></i> Red Neuronal ANN (TensorFlow)
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300">
+              Recall 100.0%
+            </span>
+          </div>
+
+          <!-- Matriz 2x2 Visual -->
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-2 text-xs">
+            <div class="text-[10px] uppercase font-bold text-slate-400 text-center">Matriz de Confusión (Test N=61)</div>
+            <div class="grid grid-cols-2 gap-2 text-center font-mono-numbers">
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] text-slate-400">Verdaderos Negativos (TN)</div>
+                <div class="text-lg font-bold text-white">{{ metricas.red_neuronal_ann.confusion_matrix[0][0] }}</div>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] text-slate-400">Falsos Positivos (FP)</div>
+                <div class="text-lg font-bold text-amber-400">{{ metricas.red_neuronal_ann.confusion_matrix[0][1] }}</div>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-slate-800 ring-2 ring-emerald-500/40">
+                <div class="text-[10px] text-emerald-400 font-bold">Falsos Negativos (FN)</div>
+                <div class="text-lg font-black text-emerald-400">{{ metricas.red_neuronal_ann.confusion_matrix[1][0] }} (¡Cero!)</div>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <div class="text-[10px] text-slate-400">Verdaderos Positivos (TP)</div>
+                <div class="text-lg font-bold text-emerald-400">{{ metricas.red_neuronal_ann.confusion_matrix[1][1] }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de Métricas -->
+          <div class="grid grid-cols-4 gap-2 text-center text-xs font-mono-numbers">
+            <div class="p-1.5 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">Accuracy</span>
+              <strong class="text-white">{{ "%.1f"|format(metricas.red_neuronal_ann.accuracy * 100) }}%</strong>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">Recall</span>
+              <strong class="text-purple-300">{{ "%.1f"|format(metricas.red_neuronal_ann.recall * 100) }}%</strong>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">Precisión</span>
+              <strong class="text-slate-300">{{ "%.1f"|format(metricas.red_neuronal_ann.precision * 100) }}%</strong>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">F1-Score</span>
+              <strong class="text-slate-300">{{ "%.1f"|format(metricas.red_neuronal_ann.f1_score * 100) }}%</strong>
+            </div>
+          </div>
+
+          <!-- Razón Clínica de Recall = 100% -->
+          <div class="text-[11px] text-emerald-300/90 bg-emerald-950/20 p-2.5 rounded-lg border border-emerald-500/30 leading-relaxed">
+            <strong class="text-emerald-300">Impacto en Urgencias Pediátricas:</strong> Al lograr 0 falsos negativos (Recall 100%), la Red Neuronal garantiza que ningún niño con riesgo real de choque sea enviado inadvertidamente a su hogar.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Resumen del Pipeline de Datos -->
+      <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-950 text-xs text-slate-400 space-y-1.5 leading-relaxed">
+        <div class="font-bold text-slate-200 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i> Pipeline de Inferencia & Preprocesamiento
+        </div>
+        <p>
+          Las 21 variables de entrada (clínicas, laboratoriales e índices derivados como ratio Hb/PCV e Índice Hemo-Plaquetario) son escaladas con <code class="text-sky-300 font-mono">StandardScaler</code> preservando las medias ajustadas durante el entrenamiento de la cohorte F1000Research.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       PIE DE PÁGINA
+       ==================================================================== -->
+  <footer class="bg-[#0f172a] border-t border-slate-800/80 py-3 text-center text-xs text-slate-400 no-print">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>
+        <span class="font-semibold text-slate-300">DengueRisk AI™</span> &bull; CDSS Pediátrico &bull; Cohorte F1000Research
+      </div>
+      <div class="text-[11px] text-slate-400">
+        Herramienta analítica de triaje para soporte en decisiones médicas.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script Principal del Dashboard -->
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

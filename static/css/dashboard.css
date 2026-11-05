@@ -1,0 +1,212 @@
+/* ==========================================================================
+   DENGUERISK AI - CLINICAL DASHBOARD STYLES
+   Executive Medical / Analytical Theme
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --bg-main: #0b1120;
+  --bg-surface: #111a2e;
+  --bg-surface-elevated: #16223b;
+  --border-subtle: #1e2e4a;
+  --border-highlight: #2c426b;
+  --primary: #0ea5e9;
+  --primary-glow: rgba(14, 165, 233, 0.25);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: #e2e8f0;
+  overflow-x: hidden;
+}
+
+.font-mono-numbers {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphism & Card Glows */
+.clinical-card {
+  background: linear-gradient(180deg, rgba(19, 30, 49, 0.95) 0%, rgba(14, 23, 38, 0.98) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clinical-card:hover {
+  border-color: var(--border-highlight);
+}
+
+.clinical-card-glow-cyan {
+  box-shadow: 0 0 25px -5px rgba(14, 165, 233, 0.15);
+}
+
+.clinical-card-glow-rose {
+  box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.18);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #0b1120;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2e4a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2c426b;
+}
+
+/* Custom Input & Select Styling */
+.form-input-custom {
+  background-color: #0c1524;
+  border: 1px solid #1e2e4a;
+  color: #f1f5f9;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.form-input-custom:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+  background-color: #0f1c30;
+}
+
+/* Custom Range Slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1e2e4a;
+  border-radius: 9999px;
+  height: 6px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #38bdf8;
+  cursor: pointer;
+  border: 2px solid #0b1120;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+  transition: transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Custom Checkbox Toggle Switches */
+.toggle-checkbox {
+  accent-color: #0ea5e9;
+  cursor: pointer;
+}
+
+/* Tooltip container */
+.has-tooltip {
+  position: relative;
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip-box {
+  visibility: hidden;
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.6875rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  white-space: normal;
+  width: max-content;
+  max-width: 240px;
+  z-index: 50;
+  box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.has-tooltip:hover .tooltip-box {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(-3px);
+}
+
+/* Gauge SVG animations */
+.gauge-arc-bg {
+  stroke: #1e293b;
+  stroke-dasharray: 251.2;
+  stroke-dashoffset: 0;
+}
+
+.gauge-arc-fill {
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+}
+
+/* Pulsing Badge animations */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.pulse-led {
+  animation: pulse-ring 2s infinite ease-in-out;
+}
+
+/* Modal Blur backdrop */
+.modal-backdrop-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(5, 10, 20, 0.75);
+}
+
+/* ==========================================================================
+   PRINT / EXPORTAR A PDF STYLES
+   ========================================================================== */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 12pt;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  #printable-report {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+    size: letter portrait;
+  }
+}
