@@ -1,4 +1,4 @@
-# Predictor Clínico de Dengue Pediátrico | Colab & Web Minimalista
+# Predictor Clínico de Dengue Pediátrico 
 
 > **Proyecto Universitario de Analítica de Datos y Triaje Médico Asistido por Inteligencia Artificial**  
 > **Estudio Base:** *F1000Research (2022) — "Predictive scoring system for risk of complications in pediatric dengue infection"*  
