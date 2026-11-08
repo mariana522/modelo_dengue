@@ -632,6 +632,470 @@ Documento generado como soporte para la toma de decisiones clínicas pediátrica
     });
   }
 
+  // ============================================================================
+  // MÓDULO DE PREDICCIÓN Y TRIAJE POR LOTES (BATCH PREDICTION) ⭐
+  // ============================================================================
+  const tabNavIndividual = document.getElementById("tab-nav-individual");
+  const tabNavLotes = document.getElementById("tab-nav-lotes");
+  const viewIndividual = document.getElementById("view-individual");
+  const viewLotes = document.getElementById("view-lotes");
+  const headerPresets = document.getElementById("header-presets-container");
+
+  let batchModel = "ann";
+  let batchDataActual = null;
+  let batchDonutChart = null;
+  let batchScoreBarChart = null;
+  let archivoLoteSeleccionado = null;
+  let filtroRiesgoActual = "todos";
+  let busquedaActual = "";
+
+  // 1. Toggles de Navegación entre Individual y Lotes
+  if (tabNavIndividual && tabNavLotes && viewIndividual && viewLotes) {
+    tabNavIndividual.addEventListener("click", () => {
+      tabNavIndividual.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-sky-500 text-white shadow-md shadow-sky-500/25";
+      tabNavLotes.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent hover:border-slate-700";
+      viewIndividual.classList.remove("hidden");
+      viewLotes.classList.add("hidden");
+      if (headerPresets) headerPresets.classList.remove("hidden");
+      if (window.lucide) lucide.createIcons();
+    });
+
+    tabNavLotes.addEventListener("click", () => {
+      tabNavLotes.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-purple-600 text-white shadow-md shadow-purple-600/25";
+      tabNavIndividual.className = "flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent hover:border-slate-700";
+      viewIndividual.classList.add("hidden");
+      viewLotes.classList.remove("hidden");
+      if (headerPresets) headerPresets.classList.add("hidden");
+      if (window.lucide) lucide.createIcons();
+      if (!batchDataActual) {
+        ejecutarLoteDemo();
+      }
+    });
+  }
+
+  // 2. Selector de Modelo para Lotes
+  const batchModelTabs = document.querySelectorAll(".batch-model-tab");
+  batchModelTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      batchModelTabs.forEach(t => {
+        t.className = "batch-model-tab py-1.5 px-2.5 rounded-lg font-bold text-center transition bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center gap-1";
+      });
+      tab.className = "batch-model-tab py-1.5 px-2.5 rounded-lg font-bold text-center transition bg-purple-600 text-white shadow-sm flex items-center justify-center gap-1";
+      batchModel = tab.dataset.batchModel || "ann";
+      if (archivoLoteSeleccionado) {
+        procesarArchivoLote(archivoLoteSeleccionado);
+      } else if (batchDataActual) {
+        ejecutarLoteDemo();
+      }
+    });
+  });
+
+  // 3. Dropzone & File Input
+  const dropzoneLote = document.getElementById("dropzone-lote");
+  const inputArchivoLote = document.getElementById("input-archivo-lote");
+  const btnProcesarArchivo = document.getElementById("btn-procesar-archivo-cargado");
+  const dropzoneTextoPrincipal = document.getElementById("dropzone-texto-principal");
+  const dropzoneTextoSecundario = document.getElementById("dropzone-texto-secundario");
+  const btnCargarDemoLote = document.getElementById("btn-cargar-demo-lote");
+
+  if (dropzoneLote && inputArchivoLote) {
+    dropzoneLote.addEventListener("click", () => inputArchivoLote.click());
+
+    ["dragenter", "dragover"].forEach(evtName => {
+      dropzoneLote.addEventListener(evtName, (e) => {
+        e.preventDefault();
+        dropzoneLote.classList.add("border-purple-400", "bg-purple-950/30");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(evtName => {
+      dropzoneLote.addEventListener(evtName, (e) => {
+        e.preventDefault();
+        dropzoneLote.classList.remove("border-purple-400", "bg-purple-950/30");
+      });
+    });
+
+    dropzoneLote.addEventListener("drop", (e) => {
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        manejarArchivoSeleccionado(e.dataTransfer.files[0]);
+      }
+    });
+
+    inputArchivoLote.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        manejarArchivoSeleccionado(e.target.files[0]);
+      }
+    });
+  }
+
+  function manejarArchivoSeleccionado(file) {
+    archivoLoteSeleccionado = file;
+    dropzoneTextoPrincipal.innerHTML = `📄 Archivo cargado: <span class="text-purple-300 font-mono">${file.name}</span> (${(file.size / 1024).toFixed(1)} KB)`;
+    dropzoneTextoSecundario.textContent = "Haga clic en 'Procesar Archivo Seleccionado' o cargue otro archivo para reemplazar.";
+    if (btnProcesarArchivo) {
+      btnProcesarArchivo.disabled = false;
+      btnProcesarArchivo.className = "w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white border border-purple-500 text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-purple-950 transition cursor-pointer";
+    }
+  }
+
+  if (btnProcesarArchivo) {
+    btnProcesarArchivo.addEventListener("click", () => {
+      if (archivoLoteSeleccionado) {
+        procesarArchivoLote(archivoLoteSeleccionado);
+      }
+    });
+  }
+
+  if (btnCargarDemoLote) {
+    btnCargarDemoLote.addEventListener("click", ejecutarLoteDemo);
+  }
+
+  // 4. Inferencia por Lotes vía API
+  async function procesarArchivoLote(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("modelo", batchModel);
+
+    mostrarCargandoLote(true);
+    try {
+      const resp = await fetch("/api/predecir_lote", {
+        method: "POST",
+        body: formData
+      });
+      const data = await resp.json();
+      if (data.status === "success") {
+        renderizarResultadosLote(data);
+      } else {
+        alert("Error al procesar el lote: " + (data.message || "Error desconocido"));
+      }
+    } catch (err) {
+      console.error("Error en petición de lote:", err);
+      alert("Error de conexión al procesar el lote.");
+    } finally {
+      mostrarCargandoLote(false);
+    }
+  }
+
+  async function ejecutarLoteDemo() {
+    mostrarCargandoLote(true);
+    try {
+      const resp = await fetch("/api/predecir_lote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ demo: true, modelo: batchModel })
+      });
+      const data = await resp.json();
+      if (data.status === "success") {
+        archivoLoteSeleccionado = null;
+        if (dropzoneTextoPrincipal) {
+          dropzoneTextoPrincipal.innerHTML = `⚡ Lote de Demostración Activo: <span class="text-purple-300 font-mono">Cohorte F1000Research (30 Pacientes)</span>`;
+          dropzoneTextoSecundario.textContent = "Datos clínicos reales extraídos del estudio hospitalario de dengue pediátrico.";
+        }
+        renderizarResultadosLote(data);
+      } else {
+        alert("Error al cargar demo: " + (data.message || ""));
+      }
+    } catch (err) {
+      console.error("Error cargando demo:", err);
+    } finally {
+      mostrarCargandoLote(false);
+    }
+  }
+
+  function mostrarCargandoLote(cargando) {
+    const contenedor = document.getElementById("contenedor-resultados-lote");
+    if (cargando) {
+      if (btnCargarDemoLote) btnCargarDemoLote.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin text-white"></i><span>Procesando Lote con IA...</span>`;
+      if (window.lucide) lucide.createIcons();
+    } else {
+      if (btnCargarDemoLote) btnCargarDemoLote.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i><span>⚡ Cargar Lote Demo (30 Pacientes)</span>`;
+      if (contenedor) contenedor.classList.remove("hidden");
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  // 5. Renderizado del Dashboard y Gráficas del Lote
+  function renderizarResultadosLote(data) {
+    batchDataActual = data;
+    const r = data.resumen;
+
+    // Actualizar KPIs
+    document.getElementById("batch-kpi-total").textContent = r.total;
+    document.getElementById("batch-kpi-prob-promedio").textContent = `${r.probabilidad_promedio.toFixed(1)}%`;
+
+    document.getElementById("batch-kpi-alto").textContent = r.conteo_alto;
+    document.getElementById("batch-kpi-alto-pct").textContent = `(${r.porcentaje_alto}%)`;
+
+    document.getElementById("batch-kpi-moderado").textContent = r.conteo_moderado;
+    document.getElementById("batch-kpi-moderado-pct").textContent = `(${r.porcentaje_moderado}%)`;
+
+    document.getElementById("batch-kpi-bajo").textContent = r.conteo_bajo;
+    document.getElementById("batch-kpi-bajo-pct").textContent = `(${r.porcentaje_bajo}%)`;
+
+    document.getElementById("chart-legend-bajo").textContent = `${r.conteo_bajo} (${r.porcentaje_bajo}%)`;
+    document.getElementById("chart-legend-moderado").textContent = `${r.conteo_moderado} (${r.porcentaje_moderado}%)`;
+    document.getElementById("chart-legend-alto").textContent = `${r.conteo_alto} (${r.porcentaje_alto}%)`;
+
+    document.getElementById("batch-tasa-hipo").textContent = `${r.tasa_hipotension}%`;
+    document.getElementById("batch-tasa-trombo").textContent = `${r.tasa_trombocitopenia}%`;
+
+    // Filtros contadores
+    document.getElementById("count-filter-todos").textContent = r.total;
+    document.getElementById("count-filter-alto").textContent = r.conteo_alto;
+    document.getElementById("count-filter-mod").textContent = r.conteo_moderado;
+    document.getElementById("count-filter-bajo").textContent = r.conteo_bajo;
+
+    // Renderizar Gráfica de Dona
+    renderizarDonutLote(r.chart_data_riesgo);
+
+    // Renderizar Histograma de Scores F1000
+    renderizarHistogramaScore(r.distribucion_scores);
+
+    // Renderizar Tabla con Filtros
+    filtrarYRenderizarTabla();
+  }
+
+  function renderizarDonutLote(dataArr) {
+    const ctx = document.getElementById("batchDonutChart");
+    if (!ctx) return;
+
+    if (batchDonutChart) {
+      batchDonutChart.destroy();
+    }
+
+    batchDonutChart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: ["Riesgo Bajo (Ambulatorio)", "Riesgo Moderado (Sala)", "Riesgo Crítico (UCIP)"],
+        datasets: [{
+          data: dataArr,
+          backgroundColor: [
+            "rgba(16, 185, 129, 0.85)",
+            "rgba(245, 158, 11, 0.85)",
+            "rgba(239, 68, 68, 0.85)"
+          ],
+          borderColor: ["#10b981", "#f59e0b", "#ef4444"],
+          borderWidth: 2,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#0f172a",
+            borderColor: "#334155",
+            borderWidth: 1,
+            callbacks: {
+              label: (c) => ` ${c.label}: ${c.raw} pacientes`
+            }
+          }
+        },
+        cutout: "70%"
+      }
+    });
+  }
+
+  function renderizarHistogramaScore(scoresArr) {
+    const ctx = document.getElementById("batchScoreBarChart");
+    if (!ctx) return;
+
+    if (batchScoreBarChart) {
+      batchScoreBarChart.destroy();
+    }
+
+    const labels = ["0 pts", "1 pt", "2 pts", "3 pts", "4 pts", "5 pts", "6 pts", "7 pts"];
+    const barColors = scoresArr.map((_, idx) => {
+      if (idx >= 3) return "rgba(239, 68, 68, 0.85)";
+      if (idx === 2) return "rgba(245, 158, 11, 0.85)";
+      return "rgba(16, 185, 129, 0.85)";
+    });
+
+    batchScoreBarChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Pacientes con este Score",
+          data: scoresArr,
+          backgroundColor: barColors,
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#0f172a",
+            borderColor: "#334155",
+            borderWidth: 1
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: "#94a3b8", precision: 0 },
+            grid: { color: "rgba(51, 65, 85, 0.4)" }
+          },
+          x: {
+            ticks: { color: "#94a3b8" },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // 6. Filtros y Búsqueda en la Tabla de Lotes
+  const filterBtns = document.querySelectorAll(".btn-batch-filter");
+  filterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach(b => {
+        b.className = "btn-batch-filter px-3 py-1.5 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-white border border-transparent";
+      });
+      btn.className = "btn-batch-filter active-filter px-3 py-1.5 rounded-lg font-bold bg-sky-500 text-white shadow-sm";
+      filtroRiesgoActual = btn.dataset.filter;
+      filtrarYRenderizarTabla();
+    });
+  });
+
+  const inputBusqueda = document.getElementById("input-busqueda-lote");
+  if (inputBusqueda) {
+    inputBusqueda.addEventListener("input", (e) => {
+      busquedaActual = e.target.value.toLowerCase().trim();
+      filtrarYRenderizarTabla();
+    });
+  }
+
+  function filtrarYRenderizarTabla() {
+    if (!batchDataActual || !batchDataActual.pacientes) return;
+
+    let pacientes = batchDataActual.pacientes;
+
+    if (filtroRiesgoActual !== "todos") {
+      pacientes = pacientes.filter(p => p.nivel === filtroRiesgoActual);
+    }
+
+    if (busquedaActual) {
+      pacientes = pacientes.filter(p => 
+        p.id.toLowerCase().includes(busquedaActual) ||
+        p.edad.toLowerCase().includes(busquedaActual) ||
+        p.nivel.toLowerCase().includes(busquedaActual) ||
+        p.conducta.toLowerCase().includes(busquedaActual) ||
+        (p.alertas && p.alertas.some(a => a.toLowerCase().includes(busquedaActual)))
+      );
+    }
+
+    const tbody = document.getElementById("batch-tabla-body");
+    const contador = document.getElementById("batch-tabla-contador");
+    tbody.innerHTML = "";
+
+    contador.textContent = `Mostrando ${pacientes.length} de ${batchDataActual.pacientes.length} pacientes evaluados`;
+
+    if (pacientes.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-500 italic">No se encontraron pacientes con los criterios de búsqueda aplicados.</td></tr>`;
+      return;
+    }
+
+    pacientes.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.className = "hover:bg-slate-800/40 transition border-b border-slate-800/60";
+
+      let badgeHtml = "";
+      let barColor = "";
+      if (p.nivel === "ALTO") {
+        badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 text-rose-300 border border-rose-500/40 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-400 pulse-led"></span>Crítico</span>`;
+        barColor = "bg-rose-500";
+      } else if (p.nivel === "MODERADO") {
+        badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Alarma</span>`;
+        barColor = "bg-amber-500";
+      } else {
+        badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Bajo</span>`;
+        barColor = "bg-emerald-500";
+      }
+
+      const hipoBadge = p.hipotension 
+        ? `<span class="text-rose-400 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/30">Hipotenso (+3)</span>` 
+        : `<span class="text-slate-500">Normal</span>`;
+
+      const pcvHighlight = p.pcv >= 42.0 ? `text-rose-300 font-bold` : `text-slate-300`;
+      const platHighlight = p.plaquetas <= 75000 ? `text-rose-300 font-bold` : `text-slate-300`;
+
+      tr.innerHTML = `
+        <td class="py-2.5 px-3 font-bold text-white">${p.id}</td>
+        <td class="py-2.5 px-3 text-slate-300">${p.edad} &bull; ${p.genero[0]}</td>
+        <td class="py-2.5 px-3 text-slate-300">${p.fiebre}d</td>
+        <td class="py-2.5 px-3">${hipoBadge}</td>
+        <td class="py-2.5 px-3 ${pcvHighlight}">${p.pcv.toFixed(1)}%</td>
+        <td class="py-2.5 px-3 ${platHighlight}">${p.plaquetas.toLocaleString()}</td>
+        <td class="py-2.5 px-3 font-black text-sky-400">${p.score_clinico}/7</td>
+        <td class="py-2.5 px-3">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-white min-w-[38px]">${p.probabilidad.toFixed(1)}%</span>
+            <div class="w-14 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div class="${barColor} h-1.5 rounded-full" style="width: ${Math.min(100, Math.max(5, p.probabilidad))}%"></div>
+            </div>
+          </div>
+        </td>
+        <td class="py-2.5 px-3">${badgeHtml}</td>
+        <td class="py-2.5 px-3 text-[11px] text-slate-300 max-w-[220px] truncate" title="${p.conducta}">${p.conducta}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // 7. Exportación del Lote a CSV
+  const btnExportarCsvLote = document.getElementById("btn-exportar-csv-lote");
+  if (btnExportarCsvLote) {
+    btnExportarCsvLote.addEventListener("click", () => {
+      if (!batchDataActual || !batchDataActual.pacientes) {
+        alert("Primero debe cargar o procesar un lote de pacientes.");
+        return;
+      }
+
+      const headers = [
+        "id_paciente", "edad_grupo", "genero", "dias_fiebre", "hipotension",
+        "pcv_hematocrito", "plaquetas", "leucocitos_wbc", "alt_transaminasa",
+        "score_clinico_f1000", "probabilidad_complicacion_pct", "nivel_riesgo", "conducta_recomendada"
+      ];
+
+      const rows = batchDataActual.pacientes.map(p => [
+        `"${p.id}"`,
+        `"${p.edad}"`,
+        `"${p.genero}"`,
+        p.fiebre,
+        p.hipotension ? 1 : 0,
+        p.pcv,
+        p.plaquetas,
+        p.wbc,
+        p.alt,
+        p.score_clinico,
+        p.probabilidad,
+        `"${p.nivel}"`,
+        `"${p.conducta.replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `resultados_prediccion_lote_dengue_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+  }
+
   // Modal de Métricas Técnicas y Matrices de Confusión
   const modalMetricas = document.getElementById("modal-metricas");
   const btnAbrirModal = document.getElementById("btn-abrir-modal-metricas");

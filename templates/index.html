@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DengueRisk AI™ | Dashboard Clínico de Triaje Pediátrico</title>
+  <title>DengueRisk AI™ | Dashboard Clínico de Triaje Pediátrico & Predicción por Lotes</title>
   
   <!-- Tailwind CSS & Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +21,7 @@
   <header class="bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30 shadow-lg shadow-black/30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
       
-      <!-- Brand & Title (Subtítulo simplificado y limpio) -->
+      <!-- Brand & Title -->
       <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-sky-500/25 ring-1 ring-white/20 shrink-0">
           <i data-lucide="activity" class="w-5 h-5"></i>
@@ -29,20 +29,19 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
-              DengueRisk <span class="text-sky-400">AI</span><span class="text-[10px] text-slate-400 font-mono font-normal uppercase px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">CDSS v2.0</span>
+              DengueRisk <span class="text-sky-400">AI</span><span class="text-[10px] text-slate-400 font-mono font-normal uppercase px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">CDSS v2.5</span>
             </h1>
             <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
               <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-400 pulse-led"></span> Sistema Activo
             </span>
           </div>
-          <!-- Subtítulo conciso y claro -->
-          <p class="text-[11px] text-slate-400 font-medium">Sistema de Soporte Clínico &bull; Dengue Pediátrico</p>
+          <p class="text-[11px] text-slate-400 font-medium">Soporte Clínico Pediátrico &bull; Triaje Individual & Inferencia por Lotes</p>
         </div>
       </div>
 
       <!-- Quick Action Presets & Tech Audit Trigger -->
       <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-        <div class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800 shadow-inner text-xs">
+        <div id="header-presets-container" class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800 shadow-inner text-xs">
           <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 px-2 flex items-center gap-1">
             <i data-lucide="sparkles" class="w-3 h-3 text-sky-400"></i> Casos:
           </span>
@@ -71,7 +70,7 @@
        ==================================================================== -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 w-full flex-grow space-y-5 no-print">
     
-    <!-- 1. FRANJA SUPERIOR: TARJETAS DE MÉTRICAS SIMPLIFICADAS Y ELEGANTES -->
+    <!-- 1. FRANJA SUPERIOR: TARJETAS DE MÉTRICAS GLOBALES -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
       
       <!-- Card Modelo 1: Regresión Logística -->
@@ -148,485 +147,708 @@
 
     </section>
 
-    <!-- 2. GRID PRINCIPAL: FORMULARIO CLÍNICO (IZQ) & RESULTADOS / GRÁFICAS (DER) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-      
-      <!-- ==================================================================
-           COLUMNA IZQUIERDA: FORMULARIO INTERACTIVO ORGANIZADO (7 COLS)
-           ================================================================== -->
-      <div class="lg:col-span-7 space-y-4">
+    <!-- 2. SELECTOR DE MODO: TRIAJE INDIVIDUAL VS PREDICCIÓN POR LOTES (BATCH) -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/90 p-2 rounded-2xl border border-slate-800 shadow-lg">
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button type="button" id="tab-nav-individual" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-sky-500 text-white shadow-md shadow-sky-500/25">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span>Triaje Individual (1 Paciente)</span>
+        </button>
+        <button type="button" id="tab-nav-lotes" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent hover:border-slate-700">
+          <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i>
+          <span>Predicción por Lotes (Batch)</span>
+        </button>
+      </div>
+
+      <div class="hidden md:flex items-center gap-3 text-xs text-slate-400 pr-2">
+        <span class="inline-flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i>
+          Inferencia Vectorizada en Tiempo Real
+        </span>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VISTA 1: TRIAJE INDIVIDUAL (PACIENTE ÚNICO)
+         ==================================================================== -->
+    <div id="view-individual" class="space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         
-        <!-- SECCIÓN A: DATOS DEMOGRÁFICOS Y TEMPORALIDAD -->
-        <div class="clinical-card p-4 space-y-3.5">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">
-                <i data-lucide="user" class="w-3.5 h-3.5"></i>
-              </div>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">1. Datos Demográficos y Fiebre</h2>
-            </div>
-            <span class="text-[10px] text-slate-400">Ingreso Inicial</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            
-            <!-- Grupo Etario -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="input-edad" class="text-xs font-medium text-slate-300 flex items-center gap-1">
-                  Edad Pediátrica
-                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
-                    <i data-lucide="info" class="w-3 h-3"></i>
-                    <span class="tooltip-box">Lactantes y niños &le; 6 años tienen mayor fragilidad capilar y riesgo de descompensación acelerada.</span>
-                  </span>
-                </label>
-              </div>
-              <select id="input-edad" class="form-input-custom w-full font-medium">
-                <option value="0">&le; 6 años (Primera Infancia)</option>
-                <option value="1" selected>&gt; 6 años (Escolar / Adolescente)</option>
-              </select>
-            </div>
-
-            <!-- Género -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="input-genero" class="text-xs font-medium text-slate-300">Género Biológico</label>
-              </div>
-              <select id="input-genero" class="form-input-custom w-full font-medium">
-                <option value="0" selected>Masculino</option>
-                <option value="1">Femenino</option>
-              </select>
-            </div>
-
-            <!-- Días de Fiebre -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="input-fiebre" class="text-xs font-medium text-slate-300 flex items-center gap-1">
-                  Días de Fiebre
-                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
-                    <i data-lucide="info" class="w-3 h-3"></i>
-                    <span class="tooltip-box">La fase crítica suele coincidir con la defervescencia térmica (días 3 a 6). Una duración &ge;6 días indica fase crítica persistente.</span>
-                  </span>
-                </label>
-                <span id="val-fiebre" class="text-xs font-mono font-bold text-sky-400">4 días</span>
-              </div>
-              <div class="space-y-1">
-                <input type="range" id="input-fiebre" min="1" max="15" value="4" class="w-full">
-                <div class="flex items-center justify-between text-[10px] text-slate-400">
-                  <span>1d</span>
-                  <span id="badge-fiebre-critico" class="hidden text-amber-400 font-medium">&ge;6d Prolongada</span>
-                  <span>15d</span>
+        <!-- COLUMNA IZQUIERDA: FORMULARIO INTERACTIVO (7 COLS) -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <!-- SECCIÓN A: DATOS DEMOGRÁFICOS Y TEMPORALIDAD -->
+          <div class="clinical-card p-4 space-y-3.5">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">
+                  <i data-lucide="user" class="w-3.5 h-3.5"></i>
                 </div>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">1. Datos Demográficos y Fiebre</h2>
               </div>
+              <span class="text-[10px] text-slate-400">Ingreso Inicial</span>
             </div>
 
-          </div>
-        </div>
-
-        <!-- SECCIÓN B: SIGNOS CLÍNICOS Y CRITERIOS HEMODINÁMICOS -->
-        <div class="clinical-card p-4 space-y-3.5">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded-md bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs">
-                <i data-lucide="stethoscope" class="w-3.5 h-3.5"></i>
-              </div>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">2. Signos Clínicos y Criterios Hemodinámicos</h2>
-            </div>
-            <span class="text-[10px] text-slate-400">Examen Físico</span>
-          </div>
-
-          <!-- TARJETA DESTACADA: HIPOTENSIÓN / CHOQUE (+3 PTS) -->
-          <div id="card-hipotension" class="p-3.5 rounded-xl border border-slate-800 bg-slate-900/40 transition-all duration-200 flex items-center justify-between gap-3">
-            <div class="flex items-start gap-3">
-              <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
-                <i data-lucide="heart-pulse" class="w-4 h-4"></i>
-              </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              
+              <!-- Grupo Etario -->
               <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-edad" class="text-xs font-medium text-slate-300 flex items-center gap-1">
+                    Edad Pediátrica
+                    <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                      <i data-lucide="info" class="w-3 h-3"></i>
+                      <span class="tooltip-box">Lactantes y niños &le; 6 años tienen mayor fragilidad capilar y riesgo de descompensación acelerada.</span>
+                    </span>
+                  </label>
+                </div>
+                <select id="input-edad" class="form-input-custom w-full font-medium">
+                  <option value="0">&le; 6 años (Primera Infancia)</option>
+                  <option value="1" selected>&gt; 6 años (Escolar / Adolescente)</option>
+                </select>
+              </div>
+
+              <!-- Género -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-genero" class="text-xs font-medium text-slate-300">Género Biológico</label>
+                </div>
+                <select id="input-genero" class="form-input-custom w-full font-medium">
+                  <option value="0" selected>Masculino</option>
+                  <option value="1">Femenino</option>
+                </select>
+              </div>
+
+              <!-- Días de Fiebre -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-fiebre" class="text-xs font-medium text-slate-300 flex items-center gap-1">
+                    Días de Fiebre
+                    <span class="has-tooltip text-slate-400 hover:text-sky-400">
+                      <i data-lucide="info" class="w-3 h-3"></i>
+                      <span class="tooltip-box">La fase crítica suele coincidir con la defervescencia térmica (días 3 a 6). Una duración &ge;6 días indica fase crítica persistente.</span>
+                    </span>
+                  </label>
+                  <span id="val-fiebre" class="text-xs font-mono font-bold text-sky-400">4 días</span>
+                </div>
+                <div class="space-y-1">
+                  <input type="range" id="input-fiebre" min="1" max="15" value="4" class="w-full">
+                  <div class="flex items-center justify-between text-[10px] text-slate-400">
+                    <span>1d</span>
+                    <span id="badge-fiebre-critico" class="hidden text-amber-400 font-medium">&ge;6d Prolongada</span>
+                    <span>15d</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- SECCIÓN B: SIGNOS CLÍNICOS Y CRITERIOS HEMODINÁMICOS -->
+          <div class="clinical-card p-4 space-y-3.5">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-md bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs">
+                  <i data-lucide="stethoscope" class="w-3.5 h-3.5"></i>
+                </div>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">2. Signos Clínicos y Criterios Hemodinámicos</h2>
+              </div>
+              <span class="text-[10px] text-slate-400">Examen Físico</span>
+            </div>
+
+            <!-- TARJETA DESTACADA: HIPOTENSIÓN / CHOQUE (+3 PTS) -->
+            <div id="card-hipotension" class="p-3.5 rounded-xl border border-slate-800 bg-slate-900/40 transition-all duration-200 flex items-center justify-between gap-3">
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <i data-lucide="heart-pulse" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-white">Hipotensión Arterial / Signos de Choque</span>
+                    <span class="px-2 py-0.2 rounded-full text-[10px] font-extrabold bg-rose-500/30 text-rose-300 border border-rose-500/40">+3 Pts</span>
+                    <span class="has-tooltip text-slate-400 hover:text-rose-400">
+                      <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                      <span class="tooltip-box">PA Sistólica &lt; percentil 5 para edad/sexo, llenado capilar &gt; 2 seg, o frialdad acral. En F1000Research es el predictor de choque más potente.</span>
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                    Presión arterial sistólica &lt; P5 para edad y sexo o frialdad distal. Marcador patognomónico de Fuga Plasmática Crítica.
+                  </p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                <input type="checkbox" id="input-hipotension" class="sr-only peer toggle-checkbox">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+              </label>
+            </div>
+
+            <!-- OTROS SIGNOS CLÍNICOS EN CUADRÍCULA -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+              
+              <!-- Vómitos Persistentes -->
+              <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
                 <div class="flex items-center gap-2">
-                  <span class="text-xs font-bold text-white">Hipotensión Arterial / Signos de Choque</span>
-                  <span class="px-2 py-0.2 rounded-full text-[10px] font-extrabold bg-rose-500/30 text-rose-300 border border-rose-500/40">+3 Pts</span>
-                  <span class="has-tooltip text-slate-400 hover:text-rose-400">
-                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
-                    <span class="tooltip-box">¿Qué significa esto? PA Sistólica &lt; percentil 5 para edad/sexo, llenado capilar &gt; 2 seg, o frialdad acral. En F1000Research es el predictor de choque más potente.</span>
+                  <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-sky-400"></i>
+                  <div>
+                    <div class="font-semibold text-slate-200">Vómitos Persistentes</div>
+                    <div class="text-[10px] text-slate-400">&ge; 3 episodios / intolerancia oral</div>
+                  </div>
+                </div>
+                <input type="checkbox" id="input-vomitos" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
+              </label>
+
+              <!-- Dolor Abdominal Intenso -->
+              <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-sky-400"></i>
+                  <div>
+                    <div class="font-semibold text-slate-200">Dolor Abdominal Continuo</div>
+                    <div class="text-[10px] text-slate-400">Intenso, continuo o espontáneo</div>
+                  </div>
+                </div>
+                <input type="checkbox" id="input-dolor" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
+              </label>
+
+              <!-- Sangrado de Mucosas -->
+              <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="droplet" class="w-3.5 h-3.5 text-rose-400"></i>
+                  <div>
+                    <div class="font-semibold text-slate-200">Sangrado Espontáneo</div>
+                    <div class="text-[10px] text-slate-400">Petequias, epistaxis o gingivorragia</div>
+                  </div>
+                </div>
+                <input type="checkbox" id="input-sangrado" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-rose-500 focus:ring-rose-500/30">
+              </label>
+
+              <!-- Organomegalia -->
+              <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="crosshair" class="w-3.5 h-3.5 text-sky-400"></i>
+                  <div>
+                    <div class="font-semibold text-slate-200">Organomegalia</div>
+                    <div class="text-[10px] text-slate-400">Hepatomegalia &gt; 2 cm reborde costal</div>
+                  </div>
+                </div>
+                <input type="checkbox" id="input-organomegalia" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
+              </label>
+
+            </div>
+          </div>
+
+          <!-- SECCIÓN C: BIOMARCADORES DE LABORATORIO -->
+          <div class="clinical-card p-4 space-y-3.5">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-md bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">
+                  <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
+                </div>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">3. Parámetros Hematológicos y Hepáticos</h2>
+              </div>
+              <span class="text-[10px] text-slate-400">Laboratorio Clínico</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+              
+              <!-- Hemoglobina Hb -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-hb" class="font-medium text-slate-300">Hemoglobina (Hb)</label>
+                  <span class="text-[10px] text-slate-400">g/dL</span>
+                </div>
+                <input type="number" step="0.1" id="input-hb" value="13.2" min="4.0" max="22.0" class="form-input-custom w-full font-mono-numbers">
+                <span class="text-[10px] text-slate-400 block mt-1">Ref: 11.5 - 15.5 g/dL</span>
+              </div>
+
+              <!-- Hematocrito PCV -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-pcv" class="font-medium text-slate-300">Hematocrito (PCV)</label>
+                  <span class="text-[10px] text-slate-400">%</span>
+                </div>
+                <input type="number" step="0.1" id="input-pcv" value="39.5" min="15.0" max="65.0" class="form-input-custom w-full font-mono-numbers">
+                <div class="mt-1 flex items-center justify-between">
+                  <span class="text-[10px] text-slate-400">Ref: 34 - 40%</span>
+                  <span id="badge-pcv-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                    &ge;42% (+1 pt)
                   </span>
                 </div>
-                <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">
-                  Presión arterial sistólica &lt; P5 para edad y sexo o frialdad distal. Marcador patognomónico de Fuga Plasmática Crítica.
+              </div>
+
+              <!-- Plaquetas -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-platelets" class="font-medium text-slate-300">Plaquetas (Count)</label>
+                  <span class="text-[10px] text-slate-400">/mm³</span>
+                </div>
+                <input type="number" step="1000" id="input-platelets" value="115000" min="5000" max="600000" class="form-input-custom w-full font-mono-numbers">
+                <div class="mt-1 flex items-center justify-between">
+                  <span class="text-[10px] text-slate-400">Ref: 150k - 450k</span>
+                  <span id="badge-platelets-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                    &le;75k (+1 pt)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Leucocitos WBC -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-wbc" class="font-medium text-slate-300">Leucocitos (WBC)</label>
+                  <span class="text-[10px] text-slate-400">/mm³</span>
+                </div>
+                <input type="number" step="100" id="input-wbc" value="4800" min="500" max="40000" class="form-input-custom w-full font-mono-numbers">
+                <div class="mt-1 flex items-center justify-between">
+                  <span class="text-[10px] text-slate-400">Ref: 4k - 10k</span>
+                  <span id="badge-wbc-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    &ge;7,000 (+1 pt)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Transaminasa ALT -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-alt" class="font-medium text-slate-300">ALT Transaminasa</label>
+                  <span class="text-[10px] text-slate-400">U/L</span>
+                </div>
+                <input type="number" step="1" id="input-alt" value="28" min="5" max="1500" class="form-input-custom w-full font-mono-numbers">
+                <div class="mt-1 flex items-center justify-between">
+                  <span class="text-[10px] text-slate-400">Ref: 10 - 40 U/L</span>
+                  <span id="badge-alt-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                    &ge;70 U/L (+1 pt)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Resumen de Ponderación -->
+              <div class="rounded-xl border border-dashed border-slate-800 p-2.5 flex flex-col justify-center bg-slate-900/20">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                  <i data-lucide="zap" class="w-3 h-3 text-sky-400"></i> Score F1000Research:
+                </span>
+                <p class="text-[10px] text-slate-400 mt-1 leading-snug">
+                  Cada umbral crítico suma +1 pt al score clínico y calibra la predicción de ambos modelos en paralelo.
                 </p>
               </div>
+
             </div>
-            <label class="relative inline-flex items-center cursor-pointer shrink-0">
-              <input type="checkbox" id="input-hipotension" class="sr-only peer toggle-checkbox">
-              <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
-            </label>
           </div>
 
-          <!-- OTROS SIGNOS CLÍNICOS EN CUADRÍCULA -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-            
-            <!-- Vómitos Persistentes -->
-            <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
-              <div class="flex items-center gap-2">
-                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-sky-400"></i>
-                <div>
-                  <div class="font-semibold text-slate-200 flex items-center gap-1">
-                    Vómitos Persistentes
-                    <span class="has-tooltip text-slate-500 hover:text-sky-400">
-                      <i data-lucide="info" class="w-3 h-3"></i>
-                      <span class="tooltip-box">&ge; 3 episodios en 24h o intolerancia oral completa que impide la hidratación ambulatoria.</span>
-                    </span>
-                  </div>
-                  <div class="text-[10px] text-slate-400">&ge; 3 episodios / intolerancia a la vía oral</div>
-                </div>
-              </div>
-              <input type="checkbox" id="input-vomitos" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
-            </label>
-
-            <!-- Dolor Abdominal Intenso -->
-            <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
-              <div class="flex items-center gap-2">
-                <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-sky-400"></i>
-                <div>
-                  <div class="font-semibold text-slate-200 flex items-center gap-1">
-                    Dolor Abdominal Continuo
-                    <span class="has-tooltip text-slate-500 hover:text-sky-400">
-                      <i data-lucide="info" class="w-3 h-3"></i>
-                      <span class="tooltip-box">Dolor continuo e intenso por acumulación de líquido en pared de la vesícula o engrosamiento retroperitoneal.</span>
-                    </span>
-                  </div>
-                  <div class="text-[10px] text-slate-400">Intenso, continuo o espontáneo</div>
-                </div>
-              </div>
-              <input type="checkbox" id="input-dolor" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
-            </label>
-
-            <!-- Sangrado de Mucosas -->
-            <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
-              <div class="flex items-center gap-2">
-                <i data-lucide="droplet" class="w-3.5 h-3.5 text-rose-400"></i>
-                <div>
-                  <div class="font-semibold text-slate-200 flex items-center gap-1">
-                    Sangrado Espontáneo
-                    <span class="has-tooltip text-slate-500 hover:text-rose-400">
-                      <i data-lucide="info" class="w-3 h-3"></i>
-                      <span class="tooltip-box">Manifestaciones hemorrágicas activas: petequias abundantes, epistaxis o gingivorragia por trombocitopenia o coagulopatía.</span>
-                    </span>
-                  </div>
-                  <div class="text-[10px] text-slate-400">Petequias, epistaxis o gingivorragia</div>
-                </div>
-              </div>
-              <input type="checkbox" id="input-sangrado" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-rose-500 focus:ring-rose-500/30">
-            </label>
-
-            <!-- Organomegalia -->
-            <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-700 cursor-pointer transition">
-              <div class="flex items-center gap-2">
-                <i data-lucide="crosshair" class="w-3.5 h-3.5 text-sky-400"></i>
-                <div>
-                  <div class="font-semibold text-slate-200 flex items-center gap-1">
-                    Organomegalia
-                    <span class="has-tooltip text-slate-500 hover:text-sky-400">
-                      <i data-lucide="info" class="w-3 h-3"></i>
-                      <span class="tooltip-box">Hepatomegalia dolorosa &gt; 2 cm bajo el reborde costal debida a congestión sinusoidal y necrosis hepatocitaria.</span>
-                    </span>
-                  </div>
-                  <div class="text-[10px] text-slate-400">Hepatomegalia &gt; 2 cm reborde costal</div>
-                </div>
-              </div>
-              <input type="checkbox" id="input-organomegalia" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500/30">
-            </label>
-
+          <!-- BOTÓN DEDICADO: RESTAURAR / LIMPIAR FORMULARIO -->
+          <div class="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-900/40">
+            <div class="text-xs text-slate-400">
+              Reinicia todos los parámetros a valores basales para una nueva evaluación.
+            </div>
+            <button type="button" id="btn-limpiar-formulario-bottom" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-slate-600 transition text-xs font-bold flex items-center gap-2 shadow-sm">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>Limpiar Formulario</span>
+            </button>
           </div>
+
         </div>
 
-        <!-- SECCIÓN C: BIOMARCADORES DE LABORATORIO -->
-        <div class="clinical-card p-4 space-y-3.5">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded-md bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">
-                <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
-              </div>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">3. Parámetros Hematológicos y Hepáticos</h2>
-            </div>
-            <span class="text-[10px] text-slate-400">Laboratorio Clínico</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+        <!-- COLUMNA DERECHA: RESULTADOS, TACÓMETRO & GRÁFICAS (5 COLS) -->
+        <div class="lg:col-span-5 sticky top-20 space-y-4">
+          
+          <!-- PANEL DE ESTRATIFICACIÓN PRINCIPAL -->
+          <div class="clinical-card p-4 space-y-4">
             
-            <!-- Hemoglobina Hb -->
+            <!-- SELECTOR DE MODELO PREDICTIVO (TABS) -->
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="input-hb" class="font-medium text-slate-300 flex items-center gap-1">
-                  Hemoglobina (Hb)
-                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
-                    <i data-lucide="info" class="w-3 h-3"></i>
-                    <span class="tooltip-box">Rango normal: 11.5 - 15.5 g/dL. Utilizada para calcular el ratio Hb/PCV y descartar anemia previa.</span>
-                  </span>
-                </label>
-                <span class="text-[10px] text-slate-400">g/dL</span>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Modelo Activo para Inferencia:</span>
+                <span class="text-[10px] text-slate-400 font-mono-numbers" id="res-nombre-modelo">Regresión Logística</span>
               </div>
-              <input type="number" step="0.1" id="input-hb" value="13.2" min="4.0" max="22.0" class="form-input-custom w-full font-mono-numbers">
-              <span class="text-[10px] text-slate-400 block mt-1">Ref: 11.5 - 15.5 g/dL</span>
+              <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
+                <button type="button" data-model="logistica" class="model-tab-btn active-tab py-1.5 px-2 rounded-lg font-bold text-center transition bg-sky-500 text-white shadow-sm flex items-center justify-center gap-1">
+                  <span>Logística</span>
+                </button>
+                <button type="button" data-model="ann" class="model-tab-btn py-1.5 px-2 rounded-lg font-bold text-center transition bg-slate-800/80 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1">
+                  <span>Red ANN</span>
+                </button>
+                <button type="button" data-model="ensamble" class="model-tab-btn py-1.5 px-2 rounded-lg font-bold text-center transition bg-slate-800/80 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1">
+                  <span>Consenso</span>
+                </button>
+              </div>
             </div>
 
-            <!-- Hematocrito PCV -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="input-pcv" class="font-medium text-slate-300 flex items-center gap-1">
-                  Hematocrito (PCV)
-                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
-                    <i data-lucide="info" class="w-3 h-3"></i>
-                    <span class="tooltip-box">¿Qué significa esto? PCV &ge; 42% indica hemoconcentración severa por fuga plasmática hacia el espacio intersticial (+1 pt).</span>
-                  </span>
-                </label>
-                <span class="text-[10px] text-slate-400">%</span>
-              </div>
-              <input type="number" step="0.1" id="input-pcv" value="39.5" min="15.0" max="65.0" class="form-input-custom w-full font-mono-numbers">
-              <div class="mt-1 flex items-center justify-between">
-                <span class="text-[10px] text-slate-400">Ref: 34 - 40%</span>
-                <span id="badge-pcv-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                  &ge;42% (+1 pt)
+            <!-- TACÓMETRO / GAUGE VISUAL SEMAFÓRICO -->
+            <div class="p-3.5 rounded-xl border border-slate-800/90 bg-gradient-to-b from-slate-900/60 to-slate-950/80 flex flex-col items-center relative overflow-hidden">
+              
+              <div class="w-full flex items-center justify-between mb-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                  <i data-lucide="gauge" class="w-3.5 h-3.5 text-sky-400"></i> Probabilidad de Complicación
                 </span>
+                <div id="res-badge-nivel" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-led"></span> Riesgo Bajo
+                </div>
               </div>
+
+              <!-- Gauge Semi-Circle SVG Visual -->
+              <div class="relative w-48 h-28 flex items-end justify-center mt-2">
+                <svg viewBox="0 0 200 115" class="w-48 h-28 transform overflow-visible">
+                  <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
+                  <path d="M 20 100 A 80 80 0 0 1 76 34" fill="none" stroke="rgba(16, 185, 129, 0.25)" stroke-width="16"/>
+                  <path d="M 76 34 A 80 80 0 0 1 124 34" fill="none" stroke="rgba(245, 158, 11, 0.25)" stroke-width="16"/>
+                  <path d="M 124 34 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(239, 68, 68, 0.25)" stroke-width="16"/>
+                  <path id="res-gauge-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#10b981" stroke-width="16" stroke-linecap="round" class="gauge-arc-fill" style="stroke-dasharray: 251.2; stroke-dashoffset: 220;"/>
+                </svg>
+
+                <div class="absolute bottom-1 flex flex-col items-center">
+                  <span id="res-prob-principal" class="text-3xl font-extrabold tracking-tight text-white font-mono-numbers">8.8%</span>
+                  <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Riesgo Estimado</span>
+                </div>
+              </div>
+
+              <div class="w-full flex items-center justify-between text-[10px] text-slate-400 font-mono-numbers px-2 mt-1 pt-1 border-t border-slate-800/80">
+                <span class="text-emerald-400">&lt; 35% Bajo</span>
+                <span class="text-amber-400">35-69% Moderado</span>
+                <span class="text-rose-400">&ge; 70% Crítico</span>
+              </div>
+
             </div>
 
-            <!-- Plaquetas -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="input-platelets" class="font-medium text-slate-300 flex items-center gap-1">
-                  Plaquetas (Count)
-                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
-                    <i data-lucide="info" class="w-3 h-3"></i>
-                    <span class="tooltip-box">¿Qué significa esto? Trombocitopenia &le; 75,000 /mm³ es criterio de alarma mayor por aumento de riesgo hemorrágico (+1 pt).</span>
+            <!-- GRÁFICA COMPARATIVA DINÁMICA (CHART.JS) -->
+            <div class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-sky-400"></i>
+                  <span class="text-xs font-bold text-slate-200">Comparativa en Tiempo Real: LR vs. ANN</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span id="res-delta-diff" class="text-[11px] font-mono-numbers text-slate-300">Δ 0.0%</span>
+                  <span id="res-concordancia-badge" class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    Alta Concordancia
                   </span>
-                </label>
-                <span class="text-[10px] text-slate-400">/mm³</span>
+                </div>
               </div>
-              <input type="number" step="1000" id="input-platelets" value="115000" min="5000" max="600000" class="form-input-custom w-full font-mono-numbers">
-              <div class="mt-1 flex items-center justify-between">
-                <span class="text-[10px] text-slate-400">Ref: 150k - 450k</span>
-                <span id="badge-platelets-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                  &le;75k (+1 pt)
-                </span>
+              
+              <div class="h-32 w-full">
+                <canvas id="comparisonChart"></canvas>
               </div>
             </div>
 
-            <!-- Leucocitos WBC -->
+            <!-- SCORE CLÍNICO F1000RESEARCH Y BARRA DE HITOS -->
+            <div class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-bold text-slate-200">Score Clínico Ponderado</span>
+                  <div class="text-[10px] text-slate-400">Corte: &ge; 2 pts alarma | &ge; 3 pts choque</div>
+                </div>
+                <div class="text-right">
+                  <div id="res-score-numero" class="text-lg font-black text-sky-400 font-mono-numbers">0 / 7</div>
+                </div>
+              </div>
+
+              <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div id="res-score-barra" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 5%"></div>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <span id="res-score-detalle" class="text-[11px] text-slate-400">&lt; 2 pts: Sin criterios de complicación</span>
+                <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono-numbers">
+                  <span>Índice H-P: <strong id="res-indice-hp" class="text-slate-300">--</strong></span>
+                  <span>Hb/PCV: <strong id="res-indice-hb-pcv" class="text-slate-300">--</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CONDUCTA MÉDICA INMEDIATA -->
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="input-wbc" class="font-medium text-slate-300 flex items-center gap-1">
-                  Leucocitos (WBC)
-                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
-                    <i data-lucide="info" class="w-3 h-3"></i>
-                    <span class="tooltip-box">Leucocitosis reactiva (&ge; 7,000 /mm³) en fase crítica se asocia a respuesta inflamatoria sistémica severa (+1 pt).</span>
-                  </span>
-                </label>
-                <span class="text-[10px] text-slate-400">/mm³</span>
-              </div>
-              <input type="number" step="100" id="input-wbc" value="4800" min="500" max="40000" class="form-input-custom w-full font-mono-numbers">
-              <div class="mt-1 flex items-center justify-between">
-                <span class="text-[10px] text-slate-400">Ref: 4k - 10k</span>
-                <span id="badge-wbc-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  &ge;7,000 (+1 pt)
-                </span>
-              </div>
-            </div>
-
-            <!-- Transaminasa ALT -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="input-alt" class="font-medium text-slate-300 flex items-center gap-1">
-                  ALT Transaminasa
-                  <span class="has-tooltip text-slate-400 hover:text-sky-400">
-                    <i data-lucide="info" class="w-3 h-3"></i>
-                    <span class="tooltip-box">¿Qué significa esto? Elevación &ge; 70 U/L indica daño hepatocelular agudo (hepatitis reactiva por dengue) (+1 pt).</span>
-                  </span>
-                </label>
-                <span class="text-[10px] text-slate-400">U/L</span>
-              </div>
-              <input type="number" step="1" id="input-alt" value="28" min="5" max="1500" class="form-input-custom w-full font-mono-numbers">
-              <div class="mt-1 flex items-center justify-between">
-                <span class="text-[10px] text-slate-400">Ref: 10 - 40 U/L</span>
-                <span id="badge-alt-critico" class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                  &ge;70 U/L (+1 pt)
-                </span>
-              </div>
-            </div>
-
-            <!-- Resumen de Ponderación -->
-            <div class="rounded-xl border border-dashed border-slate-800 p-2.5 flex flex-col justify-center bg-slate-900/20">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                <i data-lucide="zap" class="w-3 h-3 text-sky-400"></i> Score F1000Research:
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5 flex items-center gap-1">
+                <i data-lucide="clipboard-check" class="w-3 h-3 text-sky-400"></i> Conducta Médica y Plan de Acción:
               </span>
-              <p class="text-[10px] text-slate-400 mt-1 leading-snug">
-                Cada umbral crítico suma +1 pt al score clínico y calibra la predicción de ambos modelos en paralelo.
-              </p>
+              <div id="res-conducta-card" class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 text-xs text-slate-300 leading-relaxed transition-all duration-300 flex items-start gap-2.5">
+                <div class="mt-0.5 shrink-0 text-emerald-400">
+                  <i data-lucide="check-circle" id="res-conducta-icono" class="w-4 h-4"></i>
+                </div>
+                <div id="res-conducta-texto">
+                  Candidato a manejo ambulatorio supervisado con control en 24 horas. Reposo en cama, hidratación oral abundante (SRO), paracetamol y educación a padres sobre signos de alarma.
+                </div>
+              </div>
+            </div>
+
+            <!-- CRITERIOS DE ALARMA DETECTADOS -->
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5 flex items-center gap-1">
+                <i data-lucide="alert-triangle" class="w-3 h-3 text-amber-400"></i> Criterios de Alarma Activos:
+              </span>
+              <div id="res-factores-lista" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                <div class="p-2 rounded-lg border border-dashed border-slate-800 text-xs text-slate-400 italic text-center">
+                  Ningún criterio mayor o alteración de laboratorio detectada.
+                </div>
+              </div>
+            </div>
+
+            <!-- SECCIÓN DE EXPORTACIÓN Y REPORTE -->
+            <div class="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
+              <button type="button" id="btn-exportar-pdf" class="flex-1 px-3 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-950 transition">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                <span>Imprimir / Guardar PDF</span>
+              </button>
+              <button type="button" id="btn-exportar-txt" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="file-text" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span>Ficha (.TXT)</span>
+              </button>
             </div>
 
           </div>
-        </div>
 
-        <!-- BOTÓN DEDICADO: RESTAURAR / LIMPIAR FORMULARIO (NUEVA MEJORA) -->
-        <div class="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-900/40">
-          <div class="text-xs text-slate-400">
-            Reinicia todos los parámetros a valores basales para una nueva evaluación.
-          </div>
-          <button type="button" id="btn-limpiar-formulario-bottom" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-slate-600 transition text-xs font-bold flex items-center gap-2 shadow-sm">
-            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-sky-400"></i>
-            <span>Limpiar Formulario</span>
-          </button>
         </div>
 
       </div>
+    </div>
 
-      <!-- ==================================================================
-           COLUMNA DERECHA: RESULTADOS, TACÓMETRO & GRÁFICAS (5 COLS)
-           ================================================================== -->
-      <div class="lg:col-span-5 sticky top-20 space-y-4">
+    <!-- ====================================================================
+         VISTA 2: PREDICCIÓN Y TRIAJE POR LOTES (BATCH PREDICTION) ⭐
+         ==================================================================== -->
+    <div id="view-lotes" class="hidden space-y-5">
+      
+      <!-- HERO Y CONTROLES DEL LOTE -->
+      <div class="clinical-card p-5 space-y-4 border-purple-500/30 bg-gradient-to-r from-slate-900/90 via-[#131b2e] to-slate-900/90">
         
-        <!-- PANEL DE ESTRATIFICACIÓN PRINCIPAL -->
-        <div class="clinical-card p-4 space-y-4">
-          
-          <!-- SELECTOR DE MODELO PREDICTIVO (TABS) -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Modelo Activo para Inferencia:</span>
-              <span class="text-[10px] text-slate-400 font-mono-numbers" id="res-nombre-modelo">Regresión Logística</span>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wider">
+                Módulo Avanzado de Triaje Masivo
+              </span>
+              <span class="text-xs text-slate-400">&bull; Admisión Hospitalaria & Vigilancia</span>
             </div>
-            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
-              <button type="button" data-model="logistica" class="model-tab-btn active-tab py-1.5 px-2 rounded-lg font-bold text-center transition bg-sky-500 text-white shadow-sm flex items-center justify-center gap-1">
+            <h2 class="text-lg font-black text-white tracking-tight mt-1">
+              Estratificación Epidemiológica de Pacientes por Lotes (Batch AI)
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5 max-w-2xl leading-relaxed">
+              Procese tandas completas de urgencias pediátricas. Suba un archivo CSV o Excel para computar instantáneamente el riesgo de complicación, el Score F1000Research y la asignación automática de camas (Ambulatorio, Sala o UCIP).
+            </p>
+          </div>
+
+          <!-- Selector de Modelo para el Lote -->
+          <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800 shrink-0 space-y-1.5">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Modelo para el Lote:</span>
+            <div class="grid grid-cols-3 gap-1 text-xs">
+              <button type="button" data-batch-model="ann" class="batch-model-tab py-1.5 px-2.5 rounded-lg font-bold text-center transition bg-purple-600 text-white shadow-sm flex items-center justify-center gap-1">
+                <span>Red ANN (100% Rec)</span>
+              </button>
+              <button type="button" data-batch-model="logistica" class="batch-model-tab py-1.5 px-2.5 rounded-lg font-bold text-center transition bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center gap-1">
                 <span>Logística</span>
               </button>
-              <button type="button" data-model="ann" class="model-tab-btn py-1.5 px-2 rounded-lg font-bold text-center transition bg-slate-800/80 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1">
-                <span>Red ANN</span>
-              </button>
-              <button type="button" data-model="ensamble" class="model-tab-btn py-1.5 px-2 rounded-lg font-bold text-center transition bg-slate-800/80 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1">
+              <button type="button" data-batch-model="ensamble" class="batch-model-tab py-1.5 px-2.5 rounded-lg font-bold text-center transition bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center gap-1">
                 <span>Consenso</span>
               </button>
             </div>
           </div>
+        </div>
 
-          <!-- TACÓMETRO / GAUGE VISUAL SEMAFÓRICO -->
-          <div class="p-3.5 rounded-xl border border-slate-800/90 bg-gradient-to-b from-slate-900/60 to-slate-950/80 flex flex-col items-center relative overflow-hidden">
+        <!-- ZONA DE CARGA DE ARCHIVO Y BOTONES RÁPIDOS -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch pt-2 border-t border-slate-800/80">
+          
+          <!-- Dropzone (8 cols) -->
+          <div class="lg:col-span-8">
+            <div id="dropzone-lote" class="border-2 border-dashed border-purple-500/40 hover:border-purple-400 rounded-2xl p-5 text-center bg-purple-950/10 hover:bg-purple-950/20 transition cursor-pointer flex flex-col items-center justify-center min-h-[140px]">
+              <input type="file" id="input-archivo-lote" accept=".csv, .xlsx, .xls" class="hidden">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-2 shadow-inner">
+                <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+              </div>
+              <div class="text-xs font-bold text-slate-200" id="dropzone-texto-principal">
+                Arrastre su archivo CSV o Excel aquí, o haga clic para examinar
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1" id="dropzone-texto-secundario">
+                Soporta formato .CSV o .XLSX con columnas clínicas (edad, fiebre, hipotensión, PCV, plaquetas, etc.)
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de Acción Rápida (4 cols) -->
+          <div class="lg:col-span-4 flex flex-col justify-between gap-2.5">
             
-            <div class="w-full flex items-center justify-between mb-1">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                <i data-lucide="gauge" class="w-3.5 h-3.5 text-sky-400"></i> Probabilidad de Complicación
+            <!-- Botón Demo (¡Para probar en 1 clic!) -->
+            <button type="button" id="btn-cargar-demo-lote" class="w-full py-3 px-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-600 hover:from-purple-500 hover:to-sky-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-purple-950 transition">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+              <span>⚡ Cargar Lote Demo (30 Pacientes)</span>
+            </button>
+
+            <!-- Botón Descargar Plantilla -->
+            <a href="/api/descargar_plantilla" download="plantilla_pacientes_dengue.csv" class="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="download" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>📥 Descargar Plantilla CSV</span>
+            </a>
+
+            <!-- Botón Procesar Archivo Seleccionado -->
+            <button type="button" id="btn-procesar-archivo-cargado" disabled class="w-full py-2.5 px-3 rounded-xl bg-slate-800 text-slate-500 border border-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed transition">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              <span>Procesar Archivo Seleccionado</span>
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- DASHBOARD Y RESULTADOS DEL LOTE (SE ACTIVA TRAS PROCESAR) -->
+      <div id="contenedor-resultados-lote" class="space-y-5 hidden">
+        
+        <!-- 1. KPIS Y TARJETAS EPIDEMIOLÓGICAS DE LA COHORTE -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          
+          <!-- Total Pacientes -->
+          <div class="clinical-card p-4 border-l-4 border-l-sky-500 flex flex-col justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Pacientes en Lote</span>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span id="batch-kpi-total" class="text-3xl font-black text-white font-mono-numbers">30</span>
+              <span class="text-xs text-sky-400 font-bold uppercase">Evaluados</span>
+            </div>
+            <div class="text-[11px] text-slate-400 border-t border-slate-800/80 pt-1.5">
+              Riesgo promedio: <strong id="batch-kpi-prob-promedio" class="text-slate-200">54.2%</strong>
+            </div>
+          </div>
+
+          <!-- Riesgo Crítico / UCIP -->
+          <div class="clinical-card p-4 border-l-4 border-l-rose-500 bg-rose-950/10 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400">Criterio UCIP (Crítico)</span>
+              <span class="w-2 h-2 rounded-full bg-rose-500 pulse-led"></span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span id="batch-kpi-alto" class="text-3xl font-black text-rose-400 font-mono-numbers">16</span>
+              <span id="batch-kpi-alto-pct" class="text-xs font-bold text-rose-300 font-mono-numbers">(53.3%)</span>
+            </div>
+            <div class="text-[11px] text-rose-300/80 border-t border-slate-800/80 pt-1.5">
+              Reanimación hídrica urgente
+            </div>
+          </div>
+
+          <!-- Riesgo Moderado / Sala -->
+          <div class="clinical-card p-4 border-l-4 border-l-amber-500 bg-amber-950/10 flex flex-col justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Observación en Sala</span>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span id="batch-kpi-moderado" class="text-3xl font-black text-amber-300 font-mono-numbers">2</span>
+              <span id="batch-kpi-moderado-pct" class="text-xs font-bold text-amber-400 font-mono-numbers">(6.7%)</span>
+            </div>
+            <div class="text-[11px] text-amber-300/80 border-t border-slate-800/80 pt-1.5">
+              Monitoreo seriado 12-24h
+            </div>
+          </div>
+
+          <!-- Riesgo Bajo / Ambulatorio -->
+          <div class="clinical-card p-4 border-l-4 border-l-emerald-500 bg-emerald-950/10 flex flex-col justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Manejo Ambulatorio</span>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span id="batch-kpi-bajo" class="text-3xl font-black text-emerald-400 font-mono-numbers">12</span>
+              <span id="batch-kpi-bajo-pct" class="text-xs font-bold text-emerald-300 font-mono-numbers">(40.0%)</span>
+            </div>
+            <div class="text-[11px] text-emerald-300/80 border-t border-slate-800/80 pt-1.5">
+              Control clínico con alarma
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 2. GRÁFICAS DE COHORTE: DISTRIBUCIÓN DE RIESGO Y SCORE F1000 -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          
+          <!-- Gráfica de Dona: Estratificación de Riesgo (5 cols) -->
+          <div class="lg:col-span-5 clinical-card p-4 space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-purple-400"></i>
+                Estratificación de la Cohorte
               </span>
-              <div id="res-badge-nivel" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-led"></span> Riesgo Bajo
-              </div>
+              <span class="text-[10px] text-slate-400">Distribución Semafórica</span>
             </div>
-
-            <!-- Gauge Semi-Circle SVG Visual -->
-            <div class="relative w-48 h-28 flex items-end justify-center mt-2">
-              <svg viewBox="0 0 200 115" class="w-48 h-28 transform overflow-visible">
-                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
-                <path d="M 20 100 A 80 80 0 0 1 76 34" fill="none" stroke="rgba(16, 185, 129, 0.25)" stroke-width="16"/>
-                <path d="M 76 34 A 80 80 0 0 1 124 34" fill="none" stroke="rgba(245, 158, 11, 0.25)" stroke-width="16"/>
-                <path d="M 124 34 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(239, 68, 68, 0.25)" stroke-width="16"/>
-                <path id="res-gauge-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#10b981" stroke-width="16" stroke-linecap="round" class="gauge-arc-fill" style="stroke-dasharray: 251.2; stroke-dashoffset: 220;"/>
-              </svg>
-
-              <!-- Center Big Risk Value -->
-              <div class="absolute bottom-1 flex flex-col items-center">
-                <span id="res-prob-principal" class="text-3xl font-extrabold tracking-tight text-white font-mono-numbers">8.8%</span>
-                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Riesgo Estimado</span>
-              </div>
+            <div class="h-44 w-full flex items-center justify-center">
+              <canvas id="batchDonutChart"></canvas>
             </div>
-
-            <!-- Gauge Scale Legend -->
-            <div class="w-full flex items-center justify-between text-[10px] text-slate-400 font-mono-numbers px-2 mt-1 pt-1 border-t border-slate-800/80">
-              <span class="text-emerald-400">&lt; 35% Bajo</span>
-              <span class="text-amber-400">35-69% Moderado</span>
-              <span class="text-rose-400">&ge; 70% Crítico</span>
+            <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-mono-numbers pt-1 border-t border-slate-800/80">
+              <div class="text-emerald-400">Bajo: <strong id="chart-legend-bajo">--</strong></div>
+              <div class="text-amber-300">Moderado: <strong id="chart-legend-moderado">--</strong></div>
+              <div class="text-rose-400">Crítico: <strong id="chart-legend-alto">--</strong></div>
             </div>
-
           </div>
 
-          <!-- GRÁFICA COMPARATIVA DINÁMICA (CHART.JS) -->
-          <div class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-1.5">
-                <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-sky-400"></i>
-                <span class="text-xs font-bold text-slate-200">Comparativa en Tiempo Real: LR vs. ANN</span>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <span id="res-delta-diff" class="text-[11px] font-mono-numbers text-slate-300">Δ 0.0%</span>
-                <span id="res-concordancia-badge" class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                  Alta Concordancia
-                </span>
-              </div>
+          <!-- Histograma: Distribución de Scores F1000Research (7 cols) -->
+          <div class="lg:col-span-7 clinical-card p-4 space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <i data-lucide="bar-chart" class="w-3.5 h-3.5 text-sky-400"></i>
+                Histograma de Severidad (Score F1000Research 0 a 7 pts)
+              </span>
+              <span class="text-[10px] text-slate-400">Corte Alarma: &ge; 2 pts</span>
             </div>
+            <div class="h-44 w-full">
+              <canvas id="batchScoreBarChart"></canvas>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
+              <span>Tasa Hipotensión: <strong id="batch-tasa-hipo" class="text-rose-300 font-mono-numbers">--</strong></span>
+              <span>Trombocitopenia &le; 75k: <strong id="batch-tasa-trombo" class="text-amber-300 font-mono-numbers">--</strong></span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 3. TABLA INTERACTIVA DE PACIENTES DEL LOTE -->
+        <div class="clinical-card p-4 space-y-4">
+          
+          <!-- Barra de Búsqueda y Filtros -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pb-3 border-b border-slate-800">
             
-            <div class="h-32 w-full">
-              <canvas id="comparisonChart"></canvas>
+            <!-- Filtros por Categoría de Riesgo -->
+            <div class="flex flex-wrap items-center gap-1.5 text-xs w-full sm:w-auto">
+              <button type="button" data-filter="todos" class="btn-batch-filter active-filter px-3 py-1.5 rounded-lg font-bold bg-sky-500 text-white shadow-sm">
+                Todos (<span id="count-filter-todos">0</span>)
+              </button>
+              <button type="button" data-filter="ALTO" class="btn-batch-filter px-3 py-1.5 rounded-lg font-bold bg-slate-800 text-rose-300 hover:bg-rose-500/20 border border-transparent hover:border-rose-500/40">
+                🔴 Críticos / UCIP (<span id="count-filter-alto">0</span>)
+              </button>
+              <button type="button" data-filter="MODERADO" class="btn-batch-filter px-3 py-1.5 rounded-lg font-bold bg-slate-800 text-amber-300 hover:bg-amber-500/20 border border-transparent hover:border-amber-500/40">
+                🟡 Moderados (<span id="count-filter-mod">0</span>)
+              </button>
+              <button type="button" data-filter="BAJO" class="btn-batch-filter px-3 py-1.5 rounded-lg font-bold bg-slate-800 text-emerald-300 hover:bg-emerald-500/20 border border-transparent hover:border-emerald-500/40">
+                🟢 Bajos (<span id="count-filter-bajo">0</span>)
+              </button>
             </div>
+
+            <!-- Buscador y Exportación -->
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <div class="relative flex-1 sm:w-48">
+                <input type="text" id="input-busqueda-lote" placeholder="Buscar ID o hallazgo..." class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2"></i>
+              </div>
+              <button type="button" id="btn-exportar-csv-lote" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition shrink-0" title="Descargar resultados predichos en archivo CSV">
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                <span>Descargar CSV</span>
+              </button>
+            </div>
+
           </div>
 
-          <!-- SCORE CLÍNICO F1000RESEARCH Y BARRA DE HITOS -->
-          <div class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2">
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="text-xs font-bold text-slate-200">Score Clínico Ponderado</span>
-                <div class="text-[10px] text-slate-400">Corte: &ge; 2 pts alarma | &ge; 3 pts choque</div>
-              </div>
-              <div class="text-right">
-                <div id="res-score-numero" class="text-lg font-black text-sky-400 font-mono-numbers">0 / 7</div>
-              </div>
-            </div>
-
-            <!-- Barra de Progreso de Hitos -->
-            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-              <div id="res-score-barra" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 5%"></div>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <span id="res-score-detalle" class="text-[11px] text-slate-400">&lt; 2 pts: Sin criterios de complicación</span>
-              <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono-numbers">
-                <span>Índice H-P: <strong id="res-indice-hp" class="text-slate-300">--</strong></span>
-                <span>Hb/PCV: <strong id="res-indice-hb-pcv" class="text-slate-300">--</strong></span>
-              </div>
-            </div>
+          <!-- Tabla con Scroll Horizontal y Badges Semafóricos -->
+          <div class="overflow-x-auto max-h-[460px] overflow-y-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs font-mono-numbers">
+              <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider sticky top-0 z-10 border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-3">ID Paciente</th>
+                  <th class="py-2.5 px-3">Edad / Sexo</th>
+                  <th class="py-2.5 px-3">Fiebre</th>
+                  <th class="py-2.5 px-3">Hipotensión</th>
+                  <th class="py-2.5 px-3">PCV (%)</th>
+                  <th class="py-2.5 px-3">Plaquetas</th>
+                  <th class="py-2.5 px-3">Score F1000</th>
+                  <th class="py-2.5 px-3">Probabilidad</th>
+                  <th class="py-2.5 px-3">Nivel de Riesgo</th>
+                  <th class="py-2.5 px-3">Conducta Asignada</th>
+                </tr>
+              </thead>
+              <tbody id="batch-tabla-body" class="divide-y divide-slate-800/80 bg-slate-900/40 text-slate-300">
+                <!-- Se llena dinámicamente con JavaScript -->
+              </tbody>
+            </table>
           </div>
 
-          <!-- CONDUCTA MÉDICA INMEDIATA -->
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5 flex items-center gap-1">
-              <i data-lucide="clipboard-check" class="w-3 h-3 text-sky-400"></i> Conducta Médica y Plan de Acción:
-            </span>
-            <div id="res-conducta-card" class="p-3 rounded-xl border border-slate-800 bg-slate-900/40 text-xs text-slate-300 leading-relaxed transition-all duration-300 flex items-start gap-2.5">
-              <div class="mt-0.5 shrink-0 text-emerald-400">
-                <i data-lucide="check-circle" id="res-conducta-icono" class="w-4 h-4"></i>
-              </div>
-              <div id="res-conducta-texto">
-                Candidato a manejo ambulatorio supervisado con control en 24 horas. Reposo en cama, hidratación oral abundante (SRO), paracetamol y educación a padres sobre signos de alarma.
-              </div>
-            </div>
-          </div>
-
-          <!-- CRITERIOS DE ALARMA DETECTADOS -->
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5 flex items-center gap-1">
-              <i data-lucide="alert-triangle" class="w-3 h-3 text-amber-400"></i> Criterios de Alarma Activos:
-            </span>
-            <div id="res-factores-lista" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-              <div class="p-2 rounded-lg border border-dashed border-slate-800 text-xs text-slate-400 italic text-center">
-                Ningún criterio mayor o alteración de laboratorio detectada.
-              </div>
-            </div>
-          </div>
-
-          <!-- SECCIÓN DE EXPORTACIÓN Y REPORTE (NUEVA MEJORA) -->
-          <div class="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
-            <button type="button" id="btn-exportar-pdf" class="flex-1 px-3 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-950 transition">
-              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-              <span>Imprimir / Guardar PDF</span>
-            </button>
-            <button type="button" id="btn-exportar-txt" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
-              <i data-lucide="file-text" class="w-3.5 h-3.5 text-sky-400"></i>
-              <span>Ficha (.TXT)</span>
-            </button>
+          <!-- Pie de Tabla -->
+          <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/80">
+            <span id="batch-tabla-contador">Mostrando 30 de 30 pacientes</span>
+            <span class="text-slate-400">Algoritmo validado para triaje en brotes pediátricos</span>
           </div>
 
         </div>
@@ -791,11 +1013,6 @@
               <strong class="text-slate-300">{{ "%.1f"|format(metricas.regresion_logistica.f1_score * 100) }}%</strong>
             </div>
           </div>
-
-          <!-- Validación Cruzada 5-Fold -->
-          <div class="text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 leading-relaxed">
-            <strong class="text-slate-300">5-Fold Cross Validation:</strong> Exactitud promedio: 76.5%, Recall promedio: 64.0%, ROC-AUC promedio: 77.7%.
-          </div>
         </div>
 
         <!-- Matriz Modelo 2: Red Neuronal Profunda (ANN) -->
@@ -851,11 +1068,6 @@
               <strong class="text-slate-300">{{ "%.1f"|format(metricas.red_neuronal_ann.f1_score * 100) }}%</strong>
             </div>
           </div>
-
-          <!-- Razón Clínica de Recall = 100% -->
-          <div class="text-[11px] text-emerald-300/90 bg-emerald-950/20 p-2.5 rounded-lg border border-emerald-500/30 leading-relaxed">
-            <strong class="text-emerald-300">Impacto en Urgencias Pediátricas:</strong> Al lograr 0 falsos negativos (Recall 100%), la Red Neuronal garantiza que ningún niño con riesgo real de choque sea enviado inadvertidamente a su hogar.
-          </div>
         </div>
 
       </div>
@@ -882,7 +1094,7 @@
         <span class="font-semibold text-slate-300">DengueRisk AI™</span> &bull; CDSS Pediátrico &bull; Cohorte F1000Research
       </div>
       <div class="text-[11px] text-slate-400">
-        Herramienta analítica de triaje para soporte en decisiones médicas.
+        Herramienta analítica de triaje y predicción masiva por lotes para soporte en decisiones médicas.
       </div>
     </div>
   </footer>

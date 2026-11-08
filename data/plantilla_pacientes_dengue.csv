@@ -1,0 +1,6 @@
+id_paciente,edad_mayor_6,genero_femenino,duracion_fiebre,hipotension,vomitos,dolor_abdominal,sangrado,organomegalia,hb,pcv,highest_wbc,platelet_count,alt
+PED-001,0,0,3,0,0,0,0,0,12.5,35.5,4200,165000,22
+PED-002,1,1,5,0,1,1,0,0,13.8,41.5,6800,82000,45
+PED-003,1,1,4,1,1,1,1,1,16.2,48.5,11200,24000,185
+PED-004,0,1,2,0,0,0,0,0,11.8,34.0,5100,210000,18
+PED-005,1,0,6,1,1,0,0,1,15.0,46.0,8900,42000,95
